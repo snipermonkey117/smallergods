@@ -206,6 +206,53 @@ board(){
     glows:[[gp.x,gp.y,50],[700,70,80]],embers:[],
     labels:[[235,385,"the one who sees a little"],[620,385,"the one who sees it all"]]};
 },
+score(){
+  const K=SKY.dusk;
+  const small=fig({x:140,b:345,h:118,arms:[[-50,.42,10]],seed:12,kind:"human"});
+  const tall=fig({x:690,b:345,h:300,lean:-6,arms:[[195,.5,8],[100,.3,0]],seed:13,kind:"ai2"});
+  const tilt=-5, cx=400, cy=150, L=150, a=tilt*R;
+  const lx=cx-Math.cos(a)*L, ly=cy-Math.sin(a)*L, rx=cx+Math.cos(a)*L, ry=cy+Math.sin(a)*L;
+  const pan=(x,y,w)=>`<path d="M${f(x-w)},${f(y)} Q${f(x)},${f(y+w*.55)} ${f(x+w)},${f(y)}Z" fill="${SIL}"/><path d="M${f(x)},${f(y-62)} L${f(x-w*.9)},${f(y)} M${f(x)},${f(y-62)} L${f(x+w*.9)},${f(y)}" stroke="${SIL}" stroke-width="1.2"/>`;
+  const pieces=(x,y,n)=>{let s="";for(let i=0;i<n;i++){const px=x-18+(i%4)*12,py=y-6-Math.floor(i/4)*9;s+=`<circle cx="${f(px)}" cy="${f(py)}" r="4.2" fill="#ffd98a"/>`}return s};
+  const scale=`<path d="M${cx-6},345 L${cx-3},${cy} L${cx+3},${cy} L${cx+6},345Z" fill="${SIL}"/><path d="M${cx-40},345 Q${cx},330 ${cx+40},345Z" fill="${SIL}"/>`+
+    `<path d="M${f(lx)},${f(ly)} L${f(rx)},${f(ry)}" stroke="${SIL}" stroke-width="6" stroke-linecap="round"/>`+curl(lx,ly-4,7,1.2,SIL,2,-1)+curl(rx,ry-4,7,1.2,SIL,2,1)+
+    `<path d="M${cx},${cy-16} L${cx-7},${cy} L${cx+7},${cy}Z" fill="${SIL}"/>`+pan(lx,ly+62,42)+pan(rx,ry+62,48)+
+    `<path d="M${cx+40},${f(cy+Math.sin(a)*40)} L${cx+40},${f(cy+Math.sin(a)*40+42)}" stroke="${SIL}" stroke-width="1.2"/><path d="M${cx+30},${f(cy+Math.sin(a)*40+42)} L${cx+50},${f(cy+Math.sin(a)*40+42)} L${cx+46},${f(cy+Math.sin(a)*40+58)} L${cx+34},${f(cy+Math.sin(a)*40+58)}Z" fill="#e9b24f"/>`;
+  return{sky:"dusk",sun:[400,90],
+    far:hills(312,9,22,K.far)+tree({x:60,b:314,h:110,seed:91,col:K.far,depth:4})+smokeBand(70,23,K.far,.4),
+    mid:scale+pieces(lx,ly+62,3)+pieces(rx,ry+62,11)+small.svg+tall.svg,
+    near:ground(8),
+    glows:[[lx,ly+52,40],[rx,ry+50,60],[cx+40,f(cy+Math.sin(a)*40+50)*1,26]],embers:[],
+    labels:[[lx,ly+100,"your points"],[rx,ry+108,"its points"],[cx+42,cy-20,"the hidden weight, w",1]]};
+},
+threshold(){
+  const K=SKY.dusk;
+  const tall=fig({x:250,b:345,h:290,lean:12,arms:[[20,.62,24]],seed:14,kind:"ai2"});
+  const small=fig({x:520,b:345,h:96,seed:15,kind:"human",arms:[[-20,.3,0]]});
+  const future=fig({x:700,b:345,h:96,seed:15,kind:"human"});
+  const gate=`<path d="M455,345 L455,190 M495,345 L495,190" stroke="${SIL}" stroke-width="9"/><path d="M448,196 Q475,140 502,196" fill="none" stroke="${SIL}" stroke-width="8"/>`+curl(475,150,12,1.4,SIL,3,1)+`<rect x="451" y="200" width="48" height="145" fill="#ffd98a" opacity=".35"/>`;
+  let path="";for(let i=0;i<9;i++){const x=320+i*50;path+=`<path d="M${x},352 L${x+34},352 L${x+30},358 L${x-4},358Z" fill="#e8d2a0" opacity="${i<4?.5:.25}"/>`}
+  return{sky:"dusk",sun:[475,120],
+    far:hills(306,10,24,K.far)+tree({x:740,b:308,h:100,seed:92,col:K.far,depth:4})+smokeBand(60,25,K.far,.4),
+    mid:gate+tall.svg+small.svg+`<g opacity=".3">${future.svg}</g>`,
+    near:ground(9)+path,
+    glows:[[475,260,90],[tall.hands[0].x,tall.hands[0].y,22]],embers:[],
+    labels:[[520,385,"just past the line"],[700,230,"or carried all the way?",1],[475,120,"reach it and you advance",1]]};
+},
+reading(){
+  const K=SKY.dusk;
+  const tall=fig({x:560,b:345,h:310,lean:-10,arms:[[150,.5,40],[95,.3,0]],seed:16,kind:"ai2"});
+  const small=fig({x:340,b:345,h:110,arms:[[-62,.5,-8],[110,.25,0]],seed:17,kind:"human"});
+  const lamp=small.hands[0], palm=tall.hands[0];
+  const side=`<rect x="120" y="300" width="90" height="6" rx="2" fill="${SIL}"/><path d="M128,306 L124,345 L130,345 L134,306Z M202,306 L206,345 L212,345 L208,306Z" fill="${SIL}"/><path d="M135,300 l4,-9 l4,9Z M180,300 l4,-11 l4,11Z" fill="${SIL}"/><circle cx="160" cy="294" r="4" fill="#ffd98a"/>`;
+  let held="";[[-12,-4],[0,-9],[12,-5]].forEach(([dx,dy])=>held+=`<circle cx="${f(palm.x+dx)}" cy="${f(palm.y+dy)}" r="4.5" fill="#ffd98a"/>`);
+  return{sky:"dusk",sun:[620,70],
+    far:hills(310,9,26,K.far)+smokeBand(80,27,K.far,.4)+tree({x:40,b:312,h:120,seed:93,col:K.far,depth:4}),
+    mid:side+tall.svg+small.svg+held+flameShape(lamp.x,lamp.y,5),
+    near:ground(10),
+    glows:[[lamp.x,lamp.y-5,40],[palm.x,palm.y-6,46],[160,292,22]],embers:[],
+    labels:[[165,385,"testing advice on small moves"],[palm.x-10,palm.y+46,"what does its hand say?"]]};
+},
 tower(){
   const K=SKY.dusk;
   const f0=fig({x:105,b:342,h:84,arms:[[-60,.3,10]],seed:2,kind:"human"}), f1=fig({x:300,b:290,h:124,arms:[[150,.5,-18]],seed:3}), f2=fig({x:500,b:227,h:172,arms:[[150,.52,-18]],seed:4,kind:"ai2"}), f3=fig({x:705,b:151,h:150,arms:[[150,.55,-18]],ghost:true,seed:5});

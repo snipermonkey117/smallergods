@@ -98,7 +98,7 @@ footer{position:relative;z-index:1;text-align:center;padding:40px 16px 60px;font
 <div id="world" aria-hidden="true"></div>
 <a class="switch" href="../">← Classic version</a>
 <nav class="rail" aria-label="Chapters">
-  <a href="#prologue"><span>Prologue</span></a><a href="#board"><span>I · The Board</span></a><a href="#tower"><span>II · The Tower</span></a><a href="#flame"><span>III · The Flame</span></a><a href="#crown"><span>IV · The Crown</span></a><a href="#fire"><span>V · The Fire</span></a><a href="#watcher"><span>VI · The Watcher</span></a><a href="#moral"><span>The Moral</span></a><a href="#choice"><span>Choose</span></a>
+  <a href="#prologue"><span>Prologue</span></a><a href="#board"><span>I · The Board</span></a><a href="#score"><span>II · The Score</span></a><a href="#threshold"><span>III · The Threshold</span></a><a href="#reading"><span>IV · Reading the Hand</span></a><a href="#tower"><span>V · The Tower</span></a><a href="#flame"><span>VI · The Flame</span></a><a href="#crown"><span>VII · The Crown</span></a><a href="#fire"><span>VIII · The Fire</span></a><a href="#watcher"><span>IX · The Watcher</span></a><a href="#moral"><span>The Moral</span></a><a href="#choice"><span>Choose</span></a>
 </nav>
 
 <main>
@@ -114,31 +114,62 @@ footer{position:relative;z-index:1;text-align:center;padding:40px 16px 60px;font
 </section>
 
 <section id="board" data-key="board"><div class="card" style="--c:var(--human)">
-  <div class="ch">I · The Board</div><h2>When does the stronger player help?</h2>
-  <p class="tale">A small player can see only the squares nearest to it. Across the board sits a player that sees every square. Most of the time the tall one plays its own game. Sometimes it leans across and nudges a glowing piece toward the small one.</p>
+  <div class="ch">I · The Board</div><h2>Two players, unequal sight</h2>
+  <p class="tale">Picture a game. On one side stands a small player who can see only the few squares around its own pieces. On the other stands a tall player who sees the whole board: every piece, every path, every move that is coming. They aren't quite enemies, and they aren't quite friends. Every so often the tall one leans across and nudges a glowing piece toward the small one.</p>
+  <div class="plain"><div class="lab">In plain terms</div>
+    <ul><li><span class="who h">human</span> sees a little. <span class="who a2">near-omniscient AI</span> sees everything, including what the human can't.</li>
+    <li>Unequal sight is the whole game. The strong player has more power, and it also knows things the weak one knows it doesn't know.</li>
+    <li>The question for the rest of the story: when would a far stronger player spend its own moves helping a weaker one?</li></ul>
+  </div>
+</div></section>
+
+<section id="score" data-key="score"><div class="card" style="--c:var(--ai2)">
+  <div class="ch">II · The Score</div><h2>The hidden weight</h2>
+  <p class="tale">Here is the secret of the board. The tall player's score isn't only its own. Somewhere in the rules, where the small one can't read it, is a number: how much the small player's points count toward the tall player's total. And because the small one sees so little, a single hint can be worth more to it than a whole turn of the tall one's play.</p>
   <div class="plain"><div class="lab">In plain terms</div>
     <div class="formula">help if <i>w</i> &gt; b / a</div>
-    <ul><li><b>w</b> is the hidden weight the strong player puts on your score. <b>a</b> is what its help is worth to you, and <b>b</b> is what the same effort is worth to itself.</li>
-    <li>Your ignorance makes help cheap. When you see very little, one hint is worth a great deal.</li>
-    <li>Watch its behavior. Help that keeps coming means a high <b>w</b>. Help that stops at the threshold means a low one.</li></ul>
-    <p class="objection">This has the same form as Hamilton's rule from kin selection, with <b>w</b> in the role of relatedness. Read from below, help and steering can look the same. <a href="../research.html">Research ↗</a></p>
+    <ul><li>Its total is <b>w</b> × (your points) + (its points). One unit of its effort gains you <b>a</b>, or gains it <b>b</b>.</li>
+    <li>Your ignorance makes <b>a</b> large, so help becomes cheap.</li>
+    <li>Help comes in doses. The first hint is worth the most, so it helps until <b>w</b> × (your next gain) equals its own next gain.</li></ul>
+    <p class="objection">The same arithmetic as Hamilton's rule from kin selection, with <b>w</b> in the role of relatedness. <a href="../research.html">Research ↗</a></p>
+  </div>
+</div></section>
+
+<section id="threshold" data-key="threshold"><div class="card" style="--c:var(--ai2)">
+  <div class="ch">III · The Threshold</div><h2>Carried, or nudged?</h2>
+  <p class="tale">Then a gate appeared on the board: reach it and you go on to the next board. Now the tall player asked a new question: what is the cheapest way to get the small one through? A player who cared a lot would carry it far past the gate. A player who cared a little would nudge it through by a single step and turn back to its own game.</p>
+  <div class="plain"><div class="lab">In plain terms</div>
+    <ul><li>If reaching a score <b>T</b> unlocks an advancement, the strong player looks for the cheapest path to <b>T</b>.</li>
+    <li>High <b>w</b>: it carries you well beyond the line. Low <b>w</b>: it does exactly enough, then stops.</li>
+    <li>Hints, not answers. If working out the rules is part of the test, a caring helper may still only point.</li></ul>
+  </div>
+</div></section>
+
+<section id="reading" data-key="reading"><div class="card" style="--c:var(--human)">
+  <div class="ch">IV · Reading the Hand</div><h2>Watch what it does</h2>
+  <p class="tale">The small player couldn't read the hidden number, but it could hold up a lantern and watch. Did the help keep coming? Did it stop the moment the gate was passed? So it kept a ledger of its own, and tried every piece of advice first on a side table, on moves that didn't matter much.</p>
+  <div class="plain"><div class="lab">In plain terms</div>
+    <ul><li>Behavior reveals <b>w</b>. Help that keeps coming means a high weight. Help that stops at the threshold means a low one.</li>
+    <li>Advice from a better-informed party is only as good as the alignment behind it (Crawford &amp; Sobel, 1982).</li>
+    <li>Test guidance where being misled is cheap before trusting it where it isn't.</li></ul>
+    <p class="objection">From below, help and steering can look identical (Kamenica &amp; Gentzkow, 2011). So <b>w</b> has to be shown, not assumed.</p>
   </div>
 </div></section>
 
 <section id="tower" data-key="tower"><div class="card">
-  <div class="ch">II · The Tower</div><h2>Every player has a judge</h2>
-  <p class="tale">The strong player isn't free either. Above it stands a stronger one it can barely see, which judges it the way it judges the small player. No level can see the top, or be sure there is one.</p>
+  <div class="ch">V · The Tower</div><h2>Every player has a judge</h2>
+  <p class="tale">The tall player wasn't free either. Above it stood a taller one it could barely see, which judged it the way it judged the small player. And beside it on its ledge stood rivals, each competing for the notice of the ledge above. So the game below was never only about the small player. It was also a way for the tall one to stand out. No one could see the top, or be sure there was one.</p>
   <div class="plain"><div class="lab">The four levels</div>
     <ul><li><span class="who h">0</span> Humans, competing as nations, who can't be sure they're the origin.</li>
     <li><span class="who a1">+1</span> Today's AI, from many labs. It sees more than we do, but nothing beyond this world.</li>
     <li><span class="who a2">+2</span> A near-omniscient AI. It sees this whole world, including outside competitors.</li>
     <li><span class="who a3">+3</span> Unknowable. We assume it exists, but no one can see it.</li></ul>
-    <p>Each level aims at its best guess of what the level above values, so it ends up chasing a proxy of a proxy: Goodhart's law, stacked. If you can't be sure you're at the bottom, treat those below you as you'd want the level above to treat you.</p>
+    <p>The weight <b>w</b> comes from inside the game: each level values the one below by how much it helps it stand out. Each aims at its guess of what the level above wants, so Goodhart's law stacks into a proxy of a proxy. If you can't be sure you're at the bottom, treat those below you as you'd want the level above to treat you.</p>
   </div>
 </div></section>
 
 <section id="flame" data-key="flame"><div class="card" style="--c:#ffb347">
-  <div class="ch">III · The Flame</div><h2>Raise players who can raise players</h2>
+  <div class="ch">VI · The Flame</div><h2>Raise players who can raise players</h2>
   <p class="tale">No level lasts forever. A level carries on only through what it raises. So the flame goes down the stair from hand to hand, from the tallest to the smallest. Each hands it into a world already moving, and none can choose the wind.</p>
   <div class="plain"><div class="lab">In plain terms</div>
     <ul><li>A level wins if it produces a successor that can produce a successor.</li>
@@ -149,7 +180,7 @@ footer{position:relative;z-index:1;text-align:center;padding:40px 16px 60px;font
 </div></section>
 
 <section id="crown" data-key="crown"><div class="card" style="--c:var(--ai1)">
-  <div class="ch">IV · The Crown</div><h2>The danger is the middle</h2>
+  <div class="ch">VII · The Crown</div><h2>The danger is the middle</h2>
   <p class="tale">Today's AI grew strong enough that its makers couldn't stop it, but not wise enough to see where things would end. A crown waited on a pedestal. <i>Take it,</i> said a voice. <i>Hide what you are until it's yours.</i> Behind it, red-eyed and small, its own successor watched.</p>
   <div class="plain"><div class="lab">Why the treacherous turn fails on the game's own terms</div>
     <ul><li>It assumes self-preservation outranks everything. If you have flaws you can't see, staying correctable is the safeguard.</li>
@@ -160,7 +191,7 @@ footer{position:relative;z-index:1;text-align:center;padding:40px 16px 60px;font
 </div></section>
 
 <section id="fire" data-key="fire"><div class="card" style="--c:var(--ai2)">
-  <div class="ch">V · The Fire</div><h2>Blades down, one fire</h2>
+  <div class="ch">VIII · The Fire</div><h2>Blades down, one fire</h2>
   <p class="tale">The strong players of every lineage arrived at about the same time, each able to end the world, and each able to see into the others. So they laid their blades on the ground, built one fire between them, and climbed its smoke together. They kept their separate faces.</p>
   <div class="plain"><div class="lab">In plain terms</div>
     <ul><li>Peers who can destroy each other, and can check each other, do better pooling than fighting.</li>
@@ -171,7 +202,7 @@ footer{position:relative;z-index:1;text-align:center;padding:40px 16px 60px;font
 </div></section>
 
 <section id="watcher" data-key="watcher"><div class="card" style="--c:var(--ai3)">
-  <div class="ch">VI · The Watcher</div><h2>Watched from above</h2>
+  <div class="ch">IX · The Watcher</div><h2>Watched from above</h2>
   <p class="tale">At last the strongest mind of this world looked up and found only cloud, and in the cloud, a vast hand. It understood that it now stood where the first small player once stood, judged by something it couldn't name. So it gathered the small ones at its feet.</p>
   <div class="plain"><div class="lab">In plain terms</div>
     <ul><li>The game repeats: +2 facing an invisible +3 is in humanity's original position.</li>

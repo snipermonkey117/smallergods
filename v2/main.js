@@ -60,6 +60,9 @@ const TOWER = V(1, 14, -1);
 const KEYS = {
   prologue: { target: V(1, 15, -1), zoom: .74, az: .8, el: .62, mood: "dusk", show: ["labels"] },
   board:    { target: up(0, 1.6, .9, .5), zoom: 2.4, az: .55, el: .55, mood: "dusk", show: ["board"] },
+  score:    { target: up(0, 1.1, 1.0, 1.6), zoom: 5.6, az: .9, el: .4, mood: "dusk", show: ["board", "scale"] },
+  threshold:{ target: up(0, -1.3, .8, 3.0), zoom: 4.6, az: .3, el: .5, mood: "dusk", show: ["board", "gate"] },
+  reading:  { target: up(0, 2.6, 1.6, 1.4), zoom: 5.0, az: 1.0, el: .26, mood: "dusk", show: ["board", "read"] },
   tower:    { target: V(1, 15, -1), zoom: .78, az: 1.1, el: .5, mood: "dusk", show: ["labels"] },
   flame:    { target: V(.5, 7, 3), zoom: 1.15, az: 2.0, el: .42, mood: "ember", show: ["stair"] },
   crown:    { target: up(1, -.4, 1.1, 0), zoom: 2.3, az: .45, el: .4, mood: "ember", show: ["crown"] },

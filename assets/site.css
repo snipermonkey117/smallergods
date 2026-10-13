@@ -148,7 +148,7 @@ details.lit p{font-size:.95rem;margin-top:8px}
 .maxlist li::before{content:"◇ "}
 .maxlist li.on::before{content:"◆ "}
 /* compact chapter strip for narrow screens */
-.strip{position:sticky;top:46px;z-index:4;display:flex;gap:6px;justify-content:center;padding:6px 0;background:color-mix(in srgb,var(--night) 92%,transparent);font-family:var(--fell);font-size:.85rem;color:var(--dim)}
+.strip{position:sticky;top:46px;z-index:4;display:flex;gap:4px;justify-content:center;flex-wrap:wrap;padding:6px 0;background:color-mix(in srgb,var(--night) 92%,transparent);font-family:var(--fell);font-size:.85rem;color:var(--dim)}
 .strip span{padding:0 6px;border:1px solid var(--rule);border-radius:2px}
 .strip span.on{border-color:var(--gold);color:var(--gold)}
 @media(min-width:1100px){.strip{display:none}}

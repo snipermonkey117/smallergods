@@ -199,7 +199,7 @@ export function buildWorld(scene) {
   i0.position.copy(ISL[0]);
   const houses = [];
   [[-3.5, -1.5], [-2.2, 2.6], [1.2, 3.8], [3.6, -3], [-4.6, 1.2], [4.6, 1.6]].forEach(([x, z], i) => { const h = house(rnd); h.position.set(x, 0, z); h.rotation.y = rnd() * 6; i0.add(h); houses.push(h); });
-  for (let i = 0; i < 26; i++) { const a = rnd() * Math.PI * 2, r = 2 + rnd() * 4.6; const t = tree(rnd); t.position.set(Math.cos(a) * r, 0, Math.sin(a) * r); if (Math.hypot(t.position.x - 1.5, t.position.z - .5) > 2) i0.add(t); }
+  for (let i = 0; i < 26; i++) { const a = rnd() * Math.PI * 2, r = 2 + rnd() * 4.6; const t = tree(rnd); t.position.set(Math.cos(a) * r, 0, Math.sin(a) * r); if ([[1.5, .5, 2], [.9, 2.2, 1.3], [-1.6, 2.6, 1.8], [2.9, 2.3, 1.3]].every(([cx, cz, r]) => Math.hypot(t.position.x - cx, t.position.z - cz) > r)) i0.add(t); }
   const villagers = [];
   [[-1.2, -2.6, 1], [-3, .4, 0], [2.8, 2.2, 1], [-.6, 3, 1], [3.4, -1, 0]].forEach(([x, z, l], i) => { const h = human({ seed: i + 3, lantern: !!l }); h.position.set(x, 0, z); h.rotation.y = rnd() * 6; i0.add(h); villagers.push(h); });
   W.houses = houses; W.villagers = villagers;
@@ -217,6 +217,47 @@ export function buildWorld(scene) {
   const kid = human({ seed: 11 }); kid.position.set(-1.25, 0, 0); kid.rotation.y = Math.PI / 2; kid.userData.armR.rotation.x = -1.1; board.add(kid);
   const tall = ai2({ seed: 2, scale: 1.25 }); tall.position.set(1.6, 0, 0); tall.rotation.y = -Math.PI / 2; tall.userData.armL.rotation.x = -1.0; tall.userData.armL.rotation.z = -.35; board.add(tall);
   W.anim.push(t => { const k = (Math.sin(t * .6) + 1) / 2; piece.position.x = .45 - k * .75; piece.position.y = .74 + Math.abs(Math.sin(t * 1.2)) * .05; });
+
+  // Chapter II: the score, a balance between "your points" and "its points", with a hidden gold weight
+  const scaleG = groupFor("scale");
+  scaleG.position.copy(ISL[0]).add(new THREE.Vector3(.9, 0, 2.2)); scaleG.rotation.y = -.7;
+  const dark = toon(0x2a1f1a), goldGlow = glow(C.ai2, 3.2);
+  scaleG.add(at(mesh(new THREE.CylinderGeometry(.05, .08, 1.6, 6), dark), 0, .8, 0), at(mesh(new THREE.CylinderGeometry(.3, .35, .08, 8), dark), 0, .04, 0));
+  const beam = new THREE.Group(); beam.position.y = 1.62; scaleG.add(beam);
+  beam.add(mesh(new THREE.BoxGeometry(1.8, .05, .05), dark));
+  const pans = [-.85, .85].map((x, i) => {
+    const g = new THREE.Group(); g.position.x = x; beam.add(g);
+    [[.12, 0], [-.06, .1], [-.06, -.1]].forEach(([dx, dz]) => { const l = mesh(new THREE.CylinderGeometry(.005, .005, .5, 3), dark); l.position.set(dx * .9, -.25, dz * .9); g.add(l); });
+    const dish = mesh(new THREE.CylinderGeometry(.24, .14, .06, 12), dark); dish.position.y = -.52; g.add(dish);
+    const n = i ? 9 : 3; for (let k = 0; k < n; k++) { const p = new THREE.Mesh(new THREE.SphereGeometry(.035, 8, 6), goldGlow); p.position.set(-.12 + (k % 3) * .12, -.46 + Math.floor(k / 3) * .07, -.06 + ((k * 7) % 3) * .06); g.add(p); }
+    return g;
+  });
+  const weight = new THREE.Group(); weight.position.set(-.45, 0, 0); beam.add(weight);
+  weight.add(at(mesh(new THREE.CylinderGeometry(.004, .004, .3, 3), dark), 0, -.15, 0), at(new THREE.Mesh(new THREE.CylinderGeometry(.06, .08, .1, 6), goldGlow), 0, -.34, 0));
+  W.anim.push(t => { beam.rotation.z = Math.sin(t * .7) * .06 - .05; pans.forEach(p => p.rotation.z = -beam.rotation.z); weight.rotation.z = -beam.rotation.z; });
+
+  // Chapter III: the threshold, a glowing gate on the green; one person nudged just past it, a faint one carried far
+  const gateG = groupFor("gate");
+  gateG.position.copy(ISL[0]).add(new THREE.Vector3(-1.6, 0, 2.6)); gateG.rotation.y = .85;
+  [-.45, .45].forEach(x => gateG.add(at(mesh(new THREE.BoxGeometry(.12, 1.5, .12), dark), x, .75, 0)));
+  const arch = new THREE.Mesh(new THREE.TorusGeometry(.45, .05, 8, 24, Math.PI), glow(C.ai2, 2.6)); arch.position.y = 1.5; gateG.add(arch);
+  const veil = new THREE.Mesh(new THREE.PlaneGeometry(.8, 1.45), new THREE.MeshBasicMaterial({ color: new THREE.Color(C.ai2).multiplyScalar(1.6), transparent: true, opacity: .22, toneMapped: false, side: THREE.DoubleSide, depthWrite: false })); veil.position.y = .74; gateG.add(veil);
+  for (let k = -3; k <= 5; k++) { const st = mesh(new THREE.BoxGeometry(.5, .04, .34), toon(k < 0 ? 0xbfae86 : 0xe8d2a0)); st.position.set(0, .02, k * .55); gateG.add(st); }
+  const nudged = human({ seed: 61 }); nudged.position.set(0, 0, .55); gateG.add(nudged);
+  const farther = human({ seed: 61 }); farther.position.set(0, 0, 2.6);
+  farther.traverse(o => { if (o.isMesh) o.material = new THREE.MeshBasicMaterial({ color: new THREE.Color(C.ai2), transparent: true, opacity: .28, depthWrite: false }); });
+  gateG.add(farther);
+  const pusher = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), glow(C.ai2, 4)); gateG.add(pusher);
+  W.anim.push(t => { const k = (t * .4) % 1; pusher.position.set(0, .45, -.3 + k * .7); pusher.visible = k < .8; veil.material.opacity = .18 + Math.sin(t * 2) * .06; });
+
+  // Chapter IV: reading the hand, a lantern raised to the tall one's face; advice tested on a side table
+  const readG = groupFor("read");
+  readG.position.copy(ISL[0]).add(new THREE.Vector3(2.9, 0, 2.2));
+  const reader = human({ seed: 62, lantern: true, scale: 1.45 }); reader.userData.armR.rotation.x = -2.5; reader.userData.armR.rotation.z = .3; reader.rotation.y = -2.4; readG.add(reader);
+  const side = new THREE.Group(); side.position.set(.7, 0, .3); readG.add(side);
+  side.add(at(mesh(new THREE.BoxGeometry(.5, .04, .36), toon(0x5a3d2b)), 0, .4, 0));
+  [[-.2, -.14], [.2, -.14], [-.2, .14], [.2, .14]].forEach(([x, z]) => side.add(at(mesh(new THREE.CylinderGeometry(.02, .02, .4, 4), dark), x, .2, z)));
+  side.add(at(new THREE.Mesh(new THREE.SphereGeometry(.04, 8, 6), goldGlow), 0, .46, 0));
 
   // Island +1: today's AI, a slate city of obelisks
   const i1 = add("i1", island({ r: 5, depth: 5, top: 0x3a4152, rock: 0x272b38, seed: 2 }));
