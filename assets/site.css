@@ -248,3 +248,7 @@ figure.scene.gl svg.fallback{visibility:hidden}
 .captions span.dark{color:#22170d;text-shadow:0 0 6px rgba(246,234,208,.6)}
 .hero-wide{max-width:1180px;margin:0 auto 10px;display:grid;gap:18px;justify-items:center;text-align:center}
 .hero-wide figure.scene{width:100%}
+
+.topbar nav a.v2link{color:var(--night);background:var(--gold);padding:1px 10px;border-radius:999px;font-family:var(--body);font-size:.85rem}
+.topbar nav a.v2link:hover{color:var(--night);filter:brightness(1.1)}
+@media(max-width:560px){.topbar nav a.v2link{padding:1px 7px;font-size:.75rem}}

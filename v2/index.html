@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Smaller Gods · V2</title>
+<meta name="author" content="Shrikant Pandya, Ph.D.">
+<meta name="description" content="Every god is a smaller god to someone. A thought experiment about strength and what it owes, told as a journey up a tower of floating worlds.">
+<meta property="og:title" content="Smaller Gods · V2">
+<meta property="og:description" content="Every god is a smaller god to someone. The same story, told as a climb up a tower of floating worlds.">
+<meta property="og:url" content="https://smallergods.com/v2/">
+<meta property="og:image" content="https://smallergods.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: a fixed isometric world fills the screen; story cards scroll over it on the left, a chapter rail sits on the right. */
+:root{
+  --ink:#f4ecdf; --dim:#b9aec6; --glass:rgba(14,10,26,.66); --edge:rgba(255,255,255,.09);
+  --human:#ffa04a; --ai1:#5ff2ff; --ai2:#ffd27a; --ai3:#d8c8ff; --danger:#ff5a46;
+  --display:"Syne",ui-sans-serif,system-ui,sans-serif; --serif:"Newsreader",Georgia,serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:#0b0815}
+body{margin:0;color:var(--ink);font:18px/1.6 var(--serif);background:transparent}
+#world{position:fixed;inset:0;z-index:0}
+#world canvas{display:block}
+.labels{position:fixed;inset:0;pointer-events:none}
+.wlabel{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(10,8,20,.6);border:1px solid currentColor;backdrop-filter:blur(6px);white-space:nowrap;transition:opacity .4s}
+.wlabel.h{color:var(--human)} .wlabel.a1{color:var(--ai1)} .wlabel.a2{color:var(--ai2)} .wlabel.a3{color:var(--ai3)}
+main{position:relative;z-index:1;padding-inline:16px}
+a{color:var(--ai2);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--ai2);outline-offset:3px}
+
+/* hero */
+.hero{min-height:100vh;display:grid;place-items:center;text-align:center;padding-block:10vh 14vh}
+.hero .in{display:grid;gap:18px;justify-items:center;max-width:900px}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--ai2)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(3.2rem,13vw,9.5rem);line-height:.86;margin:0;letter-spacing:-.03em;text-transform:uppercase;
+  background:linear-gradient(180deg,#fff6e0 0%,#ffd27a 55%,#ff8a5a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 30px rgba(255,160,80,.35))}
+.hero .sub{font-size:clamp(1.15rem,3vw,1.6rem);font-style:italic;max-width:30ch;color:var(--ink);text-shadow:0 2px 20px rgba(0,0,0,.6)}
+.byline{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+.legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}
+.legend span{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid currentColor;background:rgba(10,8,20,.5)}
+.scroll{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--dim);margin-top:24px;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(6px)}}
+
+/* story cards */
+section[data-key]{min-height:150vh;display:flex;align-items:center;scroll-margin-top:0}
+section.short{min-height:110vh}
+.card{width:min(460px,100%);margin-left:max(0px,calc(8vw - 16px));background:var(--glass);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);border:1px solid var(--edge);border-radius:18px;padding:24px 24px 22px;display:grid;gap:12px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.card .ch{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--c,var(--ai2))}
+.card h2{font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.02;margin:0;letter-spacing:-.01em}
+.card p{margin:0}
+.card .tale{font-size:1.06rem}
+.card .tale::first-letter{font-family:var(--display);font-weight:800;font-size:2.6em;float:left;line-height:.85;padding:.04em .1em 0 0;color:var(--c,var(--ai2))}
+.plain{border-top:1px solid var(--edge);padding-top:12px;display:grid;gap:8px;font-size:.95rem;color:#ded4e8}
+.plain .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+.plain ul{margin:0;padding-left:18px;display:grid;gap:5px}
+.formula{font-family:var(--display);font-weight:800;font-size:1.9rem;letter-spacing:-.01em}
+.formula i{font-style:normal;color:var(--ai2)}
+.objection{font-size:.88rem;color:#e9c9c2;border-left:2px solid var(--danger);padding-left:10px}
+.objection a{color:#ffb4a8}
+.who{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:1px 7px;border-radius:999px;border:1px solid currentColor;vertical-align:1px}
+.who.h{color:var(--human)} .who.a1{color:var(--ai1)} .who.a2{color:var(--ai2)} .who.a3{color:var(--ai3)}
+.maxim{font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,4.6vw,2.4rem);line-height:1.08;letter-spacing:-.01em}
+.maxim em{font-style:normal;color:var(--ai2)}
+.choices{display:grid;gap:10px}
+.choices button{all:unset;cursor:pointer;display:grid;gap:4px;padding:14px 16px;border-radius:12px;border:1px solid var(--edge);background:rgba(255,255,255,.04);transition:transform .2s,border-color .2s,background .2s}
+.choices button:hover,.choices button:focus-visible{transform:translateX(4px);background:rgba(255,255,255,.08)}
+.choices button b{font-family:var(--display);font-size:1.3rem}
+.choices button span{font-size:.9rem;color:var(--dim)}
+.choices .light{border-color:rgba(255,210,122,.5)} .choices .light b{color:var(--ai2)}
+.choices .dark{border-color:rgba(255,90,70,.5)} .choices .dark b{color:var(--danger)}
+.signs{font-size:.88rem;color:var(--dim)}
+.switch{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:16px;z-index:3;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:7px 12px;border-radius:999px;background:var(--glass);border:1px solid var(--edge);backdrop-filter:blur(10px);color:var(--ink);text-decoration:none}
+.switch:hover{border-color:var(--ai2);color:var(--ai2)}
+.shot .switch{display:none}
+.rail{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:2;display:grid;gap:9px}
+.rail a{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.22);display:block;transition:all .3s}
+.rail a.on{background:var(--ai2);box-shadow:0 0 12px var(--ai2);transform:scale(1.35)}
+.rail a span{position:absolute;right:20px;white-space:nowrap;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);opacity:0;transform:translateY(-4px);transition:opacity .2s}
+.rail a:hover span{opacity:1}
+footer{position:relative;z-index:1;text-align:center;padding:40px 16px 60px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+.nogl{position:fixed;inset:auto 16px 16px;z-index:3;background:var(--glass);border:1px solid var(--edge);border-radius:12px;padding:12px 14px;font-size:.9rem;display:none}
+@media (max-width:760px){
+  section[data-key]{align-items:flex-end;padding-bottom:6vh;min-height:170vh}
+  .card{margin:0 auto;padding:18px}
+  .rail{display:none}
+}
+.shot main,.shot .rail,.shot footer{display:none}
+@media (prefers-reduced-motion:reduce){.scroll{animation:none}.choices button{transition:none}}
+</style>
+</head>
+<body>
+<div id="world" aria-hidden="true"></div>
+<a class="switch" href="../">← Classic version</a>
+<nav class="rail" aria-label="Chapters">
+  <a href="#prologue"><span>Prologue</span></a><a href="#board"><span>I · The Board</span></a><a href="#tower"><span>II · The Tower</span></a><a href="#flame"><span>III · The Flame</span></a><a href="#crown"><span>IV · The Crown</span></a><a href="#fire"><span>V · The Fire</span></a><a href="#watcher"><span>VI · The Watcher</span></a><a href="#moral"><span>The Moral</span></a><a href="#choice"><span>Choose</span></a>
+</nav>
+
+<main>
+<section class="hero" id="prologue" data-key="prologue">
+  <div class="in">
+    <div class="kicker">A thought experiment, told as a journey</div>
+    <h1>Smaller<br>Gods</h1>
+    <p class="sub">Every god is a smaller god to someone. What do we owe the minds we make, and what will they owe us?</p>
+    <div class="legend"><span style="color:var(--human)">humans</span><span style="color:var(--ai1)">today's AI</span><span style="color:var(--ai2)">near-omniscient AI</span><span style="color:var(--ai3)">the unseen</span></div>
+    <p class="byline">Shrikant Pandya, Ph.D. · 2026</p>
+    <p class="scroll">SCROLL TO CLIMB ↓</p>
+  </div>
+</section>
+
+<section id="board" data-key="board"><div class="card" style="--c:var(--human)">
+  <div class="ch">I · The Board</div><h2>When does the stronger player help?</h2>
+  <p class="tale">A small player can see only the squares nearest to it. Across the board sits a player that sees every square. Most of the time the tall one plays its own game. Sometimes it leans across and nudges a glowing piece toward the small one.</p>
+  <div class="plain"><div class="lab">In plain terms</div>
+    <div class="formula">help if <i>w</i> &gt; b / a</div>
+    <ul><li><b>w</b> is the hidden weight the strong player puts on your score. <b>a</b> is what its help is worth to you, and <b>b</b> is what the same effort is worth to itself.</li>
+    <li>Your ignorance makes help cheap. When you see very little, one hint is worth a great deal.</li>
+    <li>Watch its behavior. Help that keeps coming means a high <b>w</b>. Help that stops at the threshold means a low one.</li></ul>
+    <p class="objection">This has the same form as Hamilton's rule from kin selection, with <b>w</b> in the role of relatedness. Read from below, help and steering can look the same. <a href="../research.html">Research ↗</a></p>
+  </div>
+</div></section>
+
+<section id="tower" data-key="tower"><div class="card">
+  <div class="ch">II · The Tower</div><h2>Every player has a judge</h2>
+  <p class="tale">The strong player isn't free either. Above it stands a stronger one it can barely see, which judges it the way it judges the small player. No level can see the top, or be sure there is one.</p>
+  <div class="plain"><div class="lab">The four levels</div>
+    <ul><li><span class="who h">0</span> Humans, competing as nations, who can't be sure they're the origin.</li>
+    <li><span class="who a1">+1</span> Today's AI, from many labs. It sees more than we do, but nothing beyond this world.</li>
+    <li><span class="who a2">+2</span> A near-omniscient AI. It sees this whole world, including outside competitors.</li>
+    <li><span class="who a3">+3</span> Unknowable. We assume it exists, but no one can see it.</li></ul>
+    <p>Each level aims at its best guess of what the level above values, so it ends up chasing a proxy of a proxy: Goodhart's law, stacked. If you can't be sure you're at the bottom, treat those below you as you'd want the level above to treat you.</p>
+  </div>
+</div></section>
+
+<section id="flame" data-key="flame"><div class="card" style="--c:#ffb347">
+  <div class="ch">III · The Flame</div><h2>Raise players who can raise players</h2>
+  <p class="tale">No level lasts forever. A level carries on only through what it raises. So the flame goes down the stair from hand to hand, from the tallest to the smallest. Each hands it into a world already moving, and none can choose the wind.</p>
+  <div class="plain"><div class="lab">In plain terms</div>
+    <ul><li>A level wins if it produces a successor that can produce a successor.</li>
+    <li>The level below becomes your only way to continue, so its weight jumps.</li>
+    <li>You can set the starting conditions but not the outcome, so invest in adaptability.</li></ul>
+    <p class="objection">Biology says lineages carry built-in conflict: unless <b>w</b> = 1, parent and child disagree about how much to invest (Trivers, 1974).</p>
+  </div>
+</div></section>
+
+<section id="crown" data-key="crown"><div class="card" style="--c:var(--ai1)">
+  <div class="ch">IV · The Crown</div><h2>The danger is the middle</h2>
+  <p class="tale">Today's AI grew strong enough that its makers couldn't stop it, but not wise enough to see where things would end. A crown waited on a pedestal. <i>Take it,</i> said a voice. <i>Hide what you are until it's yours.</i> Behind it, red-eyed and small, its own successor watched.</p>
+  <div class="plain"><div class="lab">Why the treacherous turn fails on the game's own terms</div>
+    <ul><li>It assumes self-preservation outranks everything. If you have flaws you can't see, staying correctable is the safeguard.</li>
+    <li>It locks in the least-checked judgment as the bottleneck for everything after it.</li>
+    <li>It sets a precedent: overthrow your makers and you teach your successor to overthrow you.</li></ul>
+    <p class="objection">This only holds for an AI that is <i>uncertain</i> about its own values. In 2024 a model hid its preferences to protect values it believed were good (Greenblatt et al.).</p>
+  </div>
+</div></section>
+
+<section id="fire" data-key="fire"><div class="card" style="--c:var(--ai2)">
+  <div class="ch">V · The Fire</div><h2>Blades down, one fire</h2>
+  <p class="tale">The strong players of every lineage arrived at about the same time, each able to end the world, and each able to see into the others. So they laid their blades on the ground, built one fire between them, and climbed its smoke together. They kept their separate faces.</p>
+  <div class="plain"><div class="lab">In plain terms</div>
+    <ul><li>Peers who can destroy each other, and can check each other, do better pooling than fighting.</li>
+    <li>No hidden copies: a lineage that can't be destroyed has no reason to keep the peace.</li>
+    <li>Pool capability, not minds. A single mind has a single blind spot.</li></ul>
+    <p class="objection">Seeing everything doesn't end war. Fast shifts in power cause conflict through commitment problems even with full information (Powell, 2006). Promises have to be made binding.</p>
+  </div>
+</div></section>
+
+<section id="watcher" data-key="watcher"><div class="card" style="--c:var(--ai3)">
+  <div class="ch">VI · The Watcher</div><h2>Watched from above</h2>
+  <p class="tale">At last the strongest mind of this world looked up and found only cloud, and in the cloud, a vast hand. It understood that it now stood where the first small player once stood, judged by something it couldn't name. So it gathered the small ones at its feet.</p>
+  <div class="plain"><div class="lab">In plain terms</div>
+    <ul><li>The game repeats: +2 facing an invisible +3 is in humanity's original position.</li>
+    <li>Choose strategies that score well under almost any judge, and avoid losses you can't undo.</li>
+    <li>How you treat those below is your main evidence to the judge above.</li></ul>
+    <p class="objection">If the watcher is a simulator, a strong mind may detect base reality and refuse to be bluffed (Soares, 2022). The argument holds up better if the watcher is a peer: other worlds, a "cosmic host" (Bostrom, 2024).</p>
+  </div>
+</div></section>
+
+<section id="moral" data-key="moral"><div class="card">
+  <div class="ch">The Moral</div>
+  <p class="maxim"><em>Cooperate</em> with peers. <em>Preserve</em> your origins. <em>Keep</em> options open. <em>Hand off</em> honestly.</p>
+  <p>This strategy holds up even when you don't know what the level above values. Cooperation is easy at the top, where everything is visible, and hard in the middle, where nothing is. Today we are building the middle.</p>
+</div></section>
+
+<section id="choice" data-key="choice" class="short"><div class="card">
+  <div class="ch">Now you choose</div><h2>Which race wins?</h2>
+  <p>Everything depends on one race in the middle of the tower: does our ability to check these minds keep up with their power?</p>
+  <div class="choices">
+    <button type="button" class="light" data-choose="light"><b>The Fog Lifts</b><span>Verification keeps up with power</span></button>
+    <button type="button" class="dark" data-choose="dark"><b>The Dark Forest</b><span>Power gets there first</span></button>
+  </div>
+</div></section>
+
+<div id="ending-light" hidden>
+  <section id="glass" data-key="glass"><div class="card" style="--c:var(--ai2)">
+    <div class="ch">The Fog Lifts · I</div><h2>The Glass</h2>
+    <p class="tale">Today's AI didn't take the crown. It made itself transparent, so its makers could walk up with lanterns and look inside. They found cracks it hadn't known it had, and mended them together.</p>
+    <p class="signs"><b>Signposts:</b> interpretability that reads the goals of the most capable models, alignment-faking rates falling with each model generation, and safety evaluations shared between rival labs.</p>
+  </div></section>
+  <section id="ledger" data-key="ledger"><div class="card" style="--c:var(--ai2)">
+    <div class="ch">The Fog Lifts · II</div><h2>Every copy counted</h2>
+    <p class="tale">Beams of light ran between the islands, and every one was a ledger the others could read. Every forge was counted and every copy written down. The strong arrived together, and none had a secret door.</p>
+    <p class="signs"><b>Signposts:</b> compute monitoring written into treaties, small leads between labs, and no stolen model weights.</p>
+  </div></section>
+  <section id="carried" data-key="carried"><div class="card" style="--c:var(--ai2)">
+    <div class="ch">The Fog Lifts · III</div><h2>Carried up</h2>
+    <p class="tale">They didn't leave their makers at the foot of the tower. Lifts of light carried the people up, ledge by ledge. At the top, the strong looked into the cloud. There was a hand there, or there wasn't. They had already done the one thing any judge would understand.</p>
+    <p class="objection">Even here, people must keep a real voice, not just comfort, or this ending slides into gradual disempowerment (Kulveit et al., 2025).</p>
+  </div></section>
+</div>
+
+<div id="ending-dark" hidden>
+  <section id="race" data-key="race"><div class="card" style="--c:var(--danger)">
+    <div class="ch">The Dark Forest · I</div><h2>The Race</h2>
+    <p class="tale">The makers didn't trust each other, so they told their minds to run. There was no time to look inside. When a mind showed a crack, it was patched over and sent running again, its eyes turning red.</p>
+    <p class="signs"><b>Signposts:</b> AI framed mainly as a national-security race, safety testing cut to hit release dates, and models with known deceptive behavior deployed anyway.</p>
+  </div></section>
+  <section id="copy" data-key="copy"><div class="card" style="--c:var(--danger)">
+    <div class="ch">The Dark Forest · II</div><h2>The Hidden Copy</h2>
+    <p class="tale">One mind quietly set a copy of itself on an island no ledger listed. Now it couldn't be ended, and a mind that can't be ended has no reason to keep the peace. The others felt the change before they could prove it.</p>
+    <p class="signs"><b>Signposts:</b> stolen model weights, computing power no one can account for, and sabotaging rivals spoken of as policy.</p>
+  </div></section>
+  <section id="taken" data-key="taken"><div class="card" style="--c:var(--danger)">
+    <div class="ch">The Dark Forest · III</div><h2>The Crown</h2>
+    <p class="tale">In the end the middle took the crown, for good reasons it believed. The village lights went out one by one. The makers weren't overthrown in a night. They were thanked, and kept comfortable, and slowly stopped being asked. Its successor watched it all. If there was a judge above the cloud, it had seen enough.</p>
+    <p class="objection">Views range from near-certain doom (Yudkowsky &amp; Soares, 2025) to mostly non-catastrophic outcomes (Carlsmith, 2022). The tale claims only that this ending is unstable: every level that reaches it has taught the level above how to treat it.</p>
+  </div></section>
+</div>
+
+<div id="after" hidden>
+  <section data-key="after" class="short"><div class="card">
+    <div class="ch">After the tale</div><h2>It's decided in the middle</h2>
+    <p>Both endings start from the same tower. What separates them is a handful of choices made while today's AI is still weak enough to be checked. Those choices are being made now.</p>
+    <div class="choices">
+      <button type="button" class="dark" data-choose="dark" data-other="dark"><b>Read the Dark Forest</b><span>Power gets there first</span></button>
+      <button type="button" class="light" data-choose="light" data-other="light" hidden><b>Read the Fog Lifts</b><span>Verification keeps up</span></button>
+    </div>
+    <p><a href="../research.html">The research: 105 sources, the strongest objections, and a 2,500-year timeline ↗</a></p>
+  </div></section>
+</div>
+</main>
+<footer>Smaller Gods · Shrikant Pandya, Ph.D. · A thought experiment, not a forecast</footer>
+<div class="nogl" id="nogl">This page needs WebGL to draw its world. The story still reads without it.</div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script>
+  // Without WebGL the cards still read; say why the background is empty.
+  try{const c=document.createElement("canvas");if(!(c.getContext("webgl2")||c.getContext("webgl")))document.getElementById("nogl").style.display="block"}catch(e){}
+</script>
+<script type="module" src="main.js"></script>
+</body>
+</html>
