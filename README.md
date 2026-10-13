@@ -1,4 +1,4 @@
-# Turtles All the Way Up
+# Smaller Gods
 
 A thought experiment told as an illustrated fable, with two branching endings and a research section of about 105 sources.
 Static HTML, CSS and JS with no build step. The illustrations are drawn in code (`assets/puppets.js`).

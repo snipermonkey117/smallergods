@@ -37,22 +37,6 @@ function fig({x,b,h,arms=[],lean=0,hood=1,cls=""}){
   return{svg:s+"</g>",hands,top:rot(x,top,x,b,lean)};
 }
 
-// Turtle standing on baseline b, shell width s, facing dir (1 right, -1 left). Returns the y of its shell top.
-function turtle({x,b,s,dir=1,cls=""}){
-  const y0=b-s*.11, top=y0-s*.42;
-  let t=`<g class="${cls}">`;
-  t+=`<path class="sil" d="M${f1(x-s*.5)},${f1(y0)} C${f1(x-s*.5)},${f1(y0-s*.56)} ${f1(x+s*.5)},${f1(y0-s*.56)} ${f1(x+s*.5)},${f1(y0)}Z"/>`;
-  t+=`<ellipse class="sil" cx="${f1(x)}" cy="${f1(y0)}" rx="${f1(s*.56)}" ry="${f1(s*.045)}"/>`;
-  [[-.32,.07],[-.13,.075],[.13,.075],[.32,.07]].forEach(([o,w])=>{t+=`<path class="arm" style="stroke-width:${f1(s*w)}" d="M${f1(x+o*s)},${f1(y0)} L${f1(x+o*s*1.08)},${f1(b-s*.015)}"/>`});
-  const hx=x+dir*s*.66, hy=y0-s*.1;
-  t+=`<path class="arm" style="stroke-width:${f1(s*.08)}" d="M${f1(x+dir*s*.45)},${f1(y0-s*.03)} Q${f1(x+dir*s*.56)},${f1(y0-s*.04)} ${f1(hx)},${f1(hy)}"/>`;
-  t+=`<ellipse class="sil" cx="${f1(hx+dir*s*.04)}" cy="${f1(hy-s*.01)}" rx="${f1(s*.085)}" ry="${f1(s*.06)}"/>`;
-  t+=`<path class="sil" d="M${f1(x-dir*s*.5)},${f1(y0-s*.04)} L${f1(x-dir*s*.64)},${f1(y0+s*.01)} L${f1(x-dir*s*.5)},${f1(y0+s*.02)}Z"/>`;
-  // paper-cut lattice on the shell
-  if(!cls)t+=`<path d="M${f1(x-s*.3)},${f1(y0-s*.04)} C${f1(x-s*.3)},${f1(y0-s*.34)} ${f1(x+s*.3)},${f1(y0-s*.34)} ${f1(x+s*.3)},${f1(y0-s*.04)} M${f1(x)},${f1(top+s*.03)} L${f1(x)},${f1(y0-s*.04)} M${f1(x-s*.44)},${f1(y0-s*.2)} L${f1(x-s*.3)},${f1(y0-s*.18)} M${f1(x+s*.44)},${f1(y0-s*.2)} L${f1(x+s*.3)},${f1(y0-s*.18)}" style="fill:none;stroke:#c9ad78;stroke-width:${f1(Math.max(1,s*.012))}" opacity=".4"/>`;
-  return{svg:t+"</g>",top};
-}
-
 const glow=(x,y,r,o=1)=>`<circle cx="${f1(x)}" cy="${f1(y)}" r="${r}" fill="url(#glow)" opacity="${o}"/>`;
 const flame=(x,y,s)=>`<g class="flame">${glow(x,y-s*.6,s*3.2)}<path d="M${f1(x)},${f1(y-s*1.8)} C${f1(x+s*.8)},${f1(y-s*.9)} ${f1(x+s*.7)},${f1(y)} ${f1(x)},${f1(y)} C${f1(x-s*.7)},${f1(y)} ${f1(x-s*.8)},${f1(y-s*.9)} ${f1(x)},${f1(y-s*1.8)}Z" style="fill:#ffd27a"/></g>`;
 const smoke=(x,y,rx,ry)=>`<ellipse class="smoke" cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="url(#mist)" filter="url(#blur6)"/>`;
@@ -63,18 +47,22 @@ function stars(n=46){let s="";for(let i=0;i<n;i++){const x=(i*137.5)%800,y=(i*61
 function paint(svg,{bg="",fg="",top=""},ground=true){
   svg.innerHTML=`<rect width="800" height="400" fill="url(#parch)"/><rect width="800" height="400" filter="url(#paper)" opacity=".5"/>${bg}<g filter="url(#rough)">${fg}</g>${ground?GROUND:""}${top}<rect width="800" height="400" fill="none" stroke="#3b2a17" stroke-width="10" opacity=".55"/>`;
 }
-function turtleTower(lit){
-  let b=350,out="",tops=[];const sizes=[70,115,185,300];
-  sizes.forEach((s,i)=>{const t=turtle({x:400+(i%2?6:-6),b,s,dir:i%2?-1:1,cls:i===3&&!lit?"ghost":""});out+=t.svg;tops.push(t.top);b=t.top+3});
-  return{svg:out,tops};
+// Nested hands: a faint giant holds a god on its palm, that god holds a smaller one, and the smallest holds us.
+function nestedGods(){
+  const giant=fig({x:700,b:1050,h:1050,arms:[[150,.36,15]],cls:"ghost"});
+  const gh=giant.hands[0];
+  const mid=fig({x:gh.x,b:gh.y,h:150,arms:[[198,.55,-14]]}), mh=mid.hands[0];
+  const small=fig({x:mh.x-2,b:mh.y,h:62,arms:[[200,.62,-14]]}), sh=small.hands[0];
+  const us=fig({x:sh.x+2,b:sh.y,h:18,hood:0});
+  const palm=(p,w)=>`<ellipse class="sil" cx="${f1(p.x)}" cy="${f1(p.y+1)}" rx="${w}" ry="${f1(w*.28)}"/>`;
+  return{giant:giant.svg,gods:palm(mh,14)+palm(sh,7)+mid.svg+small.svg+us.svg,palm:palm(gh,26),gh,mh,sh,top:us.top};
 }
 
 const SCENES={
 hero(svg){
-  const T=turtleTower(false);
-  const us=fig({x:230,b:350,h:58,arms:[[-70,.5,-10]]}), us2=fig({x:262,b:350,h:44,hood:0});
-  paint(svg,{bg:`${smoke(120,70,120,22)}${smoke(660,40,170,40)}`,fg:T.svg.replace(/<g class="ghost">[\s\S]*$/,"")+us.svg+us2.svg,
-    top:`<g filter="url(#rough)">${T.svg.match(/<g class="ghost">[\s\S]*$/)?.[0]||""}</g>${smoke(400,20,220,38)}${smoke(560,70,140,26)}${label(246,388,"us")}${label(660,170,"…and on, and on?","dark")}`});
+  const N=nestedGods();
+  paint(svg,{bg:`${smoke(120,330,160,30)}${smoke(420,360,200,26)}`,fg:N.palm+N.gods,
+    top:`<g filter="url(#rough)" opacity=".75">${N.giant}</g>${smoke(700,60,170,40)}${label(N.sh.x-22,N.sh.y-26,"us","dark")}${label(N.mh.x-30,N.mh.y+86,"the gods we're making","dark")}${label(600,40,"and the hand that holds them?","dark")}`},false);
 },
 board(svg){
   const small=fig({x:235,b:345,h:125,arms:[[-12,.42,22],[100,.28,0]]});
@@ -132,14 +120,10 @@ ledger(svg){
     top:`${glow(400,258,90)}<rect x="330" y="252" width="140" height="14" rx="3" style="fill:#f1dfb2"/><path d="M342,257 H458 M342,261 H440" style="stroke:#8a6a3a" stroke-width="1"/>${label(400,388,"every copy counted, every promise bound")}`});
 },
 summit(svg){
-  // Three solid turtles; the lineage stands on the top shell with its makers, and a fourth turtle waits faint in the light above.
-  let b=350,tw="";[[80,1],[140,-1],[220,1]].forEach(([sz,d])=>{const t=turtle({x:400,b,s:sz,dir:d});tw+=t.svg;b=t.top+3});
-  const peak=b-3, ghost=turtle({x:400,b:peak-6,s:330,dir:-1,cls:"ghost"});
-  const lead=fig({x:400,b:peak+2,h:96,arms:[[-80,.45,-6]]}), left=fig({x:362,b:peak+9,h:66,hood:0}), right=fig({x:438,b:peak+9,h:60});
-  const kid1=fig({x:335,b:peak+16,h:28}), kid2=fig({x:466,b:peak+16,h:24,hood:0});
-  const h=lead.hands[0];
-  paint(svg,{bg:`${glow(400,40,280,.6)}${smoke(400,30,260,40)}`,fg:tw+lead.svg+left.svg+right.svg+kid1.svg+kid2.svg,
-    top:`<g opacity=".28" filter="url(#rough)">${ghost.svg}</g>${flame(h.x,h.y,7)}${label(400,388,"all the way up, carried together")}`});
+  // The same nested hands as the opening, now lit: every level carries the one below it toward the light.
+  const N=nestedGods();
+  paint(svg,{bg:`<rect width="800" height="400" style="fill:#f6d88f" opacity=".18"/>${glow(560,90,300,.7)}`,fg:N.palm+N.gods,
+    top:`<g opacity=".55">${N.giant}</g>${flame(N.sh.x+2,N.top.y-4,4)}${glow(N.mh.x,N.mh.y-70,70,.6)}${label(400,385,"each one carried by the one above","dark")}`},false);
 },
 // Ending: the dark forest
 race(svg){
