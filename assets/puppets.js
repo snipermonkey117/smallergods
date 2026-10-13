@@ -21,52 +21,125 @@ function curl(x,y,r,turns,col,w,dir=1,op=1,start=0){
   return`<path d="${d}" fill="none" stroke="${col}" stroke-width="${f(w)}" stroke-linecap="round" stroke-opacity="${op}"/>`;
 }
 
-// Hooded, long-cloaked puppet on baseline b. Arms: [angle°, length as share of h, elbow bend°]; 0° = right, 90° = down.
-function fig({x,b,h,arms=[],lean=0,hood=1,seed=1,ghost=false,light=false,ink=SIL}){
-  const r=rng(seed*7919+Math.round(x*13+h*7));
-  const w=h*.27, top=b-h, hem=b-h*.12, sh=top+h*.16, hy=top+h*.07, hr=h*.045;
+const LACE="#ead29c";
+let EYES=[]; // glowing AI eyes gathered while a scene is drawn; stage.js lights each one
+
+// Characters. kind: "ai" (today's AI, +1), "ai2" (near-omniscient AI, +2), "human".
+// Arms: [angle°, length as share of h, elbow bend°]; 0° = right, 90° = down.
+function fig(o){return o.kind==="human"?human(o):aiFig(o)}
+
+function aiFig({x,b,h,arms=[],lean=0,hood=1,seed=1,ghost=false,light=false,ink=SIL,kind="ai",eyes=true}){
+  const r=rng(seed*7919+Math.round(x*13+h*7)), big=kind==="ai2";
+  const w=h*(big?.31:.26), top=b-h, hem=b-h*.11, sh=top+h*.17, hy=top+h*.075, hr=h*.042;
   const face=arms.length?(Math.cos(arms[0][0]*R)<0?-1:1):(seed%2?1:-1);
   const col=light?PALE:ink;
   // Ghosts are a faint shade with a thin edge: something glimpsed, not drawn.
   const fillA=ghost?`fill="${col}" fill-opacity=".13" stroke="${col}" stroke-opacity=".55" stroke-width="1.3"`:`fill="${col}"`;
   const lineA=wd=>ghost?`fill="none" stroke="${col}" stroke-opacity=".5" stroke-width="${f(Math.min(2.6,Math.max(1.3,wd*.25)))}" stroke-linecap="round"`:`fill="none" stroke="${col}" stroke-width="${f(wd)}" stroke-linecap="round" stroke-linejoin="round"`;
+  const lace=(op=.5)=>`fill="${LACE}" fill-opacity="${op}"`, laceLine=(wd,op=.45)=>`fill="none" stroke="${LACE}" stroke-opacity="${op}" stroke-width="${f(wd)}" stroke-linecap="round"`;
   let s=`<g transform="rotate(${lean} ${f(x)} ${f(b)})">`;
-  const fl=w*(.56+r()*.14), fr=w*(.56+r()*.14), nk=top+h*.1;
-  s+=`<path ${fillA} d="M${f(x-h*.02)},${f(nk)} C${f(x-w*.34)},${f(top+h*.32)} ${f(x-w*.46)},${f(hem-h*.3)} ${f(x-fl)},${f(hem)} L${f(x+fr)},${f(hem)} C${f(x+w*.46)},${f(hem-h*.33)} ${f(x+w*.3)},${f(top+h*.3)} ${f(x+h*.02)},${f(nk)}Z"/>`;
+  const fl=w*(.56+r()*.12), fr=w*(.56+r()*.12), nk=top+h*.11, sway=(r()-.5)*w*.3;
+  // cloak with a slight S-sway
+  s+=`<path ${fillA} d="M${f(x-h*.024)},${f(nk)} C${f(x-w*.3)},${f(top+h*.33)} ${f(x-w*.5+sway)},${f(hem-h*.32)} ${f(x-fl)},${f(hem)} L${f(x+fr)},${f(hem)} C${f(x+w*.5+sway)},${f(hem-h*.35)} ${f(x+w*.3)},${f(top+h*.31)} ${f(x+h*.024)},${f(nk)}Z"/>`;
+  if(big)s+=`<path ${fillA} d="M${f(x-w*.48)},${f(top+h*.23)} Q${f(x)},${f(top+h*.07)} ${f(x+w*.48)},${f(top+h*.23)} L${f(x+w*.4)},${f(top+h*.31)} Q${f(x)},${f(top+h*.27)} ${f(x-w*.4)},${f(top+h*.31)}Z"/>`;
+  const lw=Math.max(1.1,h*.013);
   if(!ghost){
-    const n=10+Math.floor(r()*5), span=fl+fr; let d="";
-    for(let i=0;i<n;i++){const a=x-fl+span*i/n,c=a+span/n,m=(a+c)/2+(r()-.5)*span/n*.7,dep=h*(.018+r()*.055);d+=`M${f(a)},${f(hem-1)} L${f(m)},${f(hem+dep)} L${f(c)},${f(hem-1)}Z `}
+    const n=11+Math.floor(r()*5), span=fl+fr; let d="";
+    for(let i=0;i<n;i++){const a=x-fl+span*i/n,c=a+span/n,m=(a+c)/2+(r()-.5)*span/n*.7,dep=h*(.016+r()*.05);d+=`M${f(a)},${f(hem-1)} L${f(m)},${f(hem+dep)} L${f(c)},${f(hem-1)}Z `}
     s+=`<path fill="${col}" d="${d}"/>`;
-    if(h>70){
-      let k="";const m=2+Math.floor(r()*2);
-      for(let i=0;i<m;i++){const o=(i-(m-1)/2)*w*.34+(r()-.5)*w*.1;k+=`M${f(x+o*.4)},${f(top+h*(.34+r()*.08))} Q${f(x+o*1.1)},${f(top+h*.62)} ${f(x+o*1.75)},${f(hem-h*(.05+r()*.05))} `}
-      const sw=Math.max(.8,h*.006);
-      s+=`<path d="${k}" fill="none" stroke="${PAPER}" stroke-opacity=".34" stroke-width="${f(sw)}" stroke-linecap="round"/>`;
-      s+=`<path d="M${f(x-w*.22)},${f(top+h*.21)} Q${f(x)},${f(top+h*.27)} ${f(x+w*.22)},${f(top+h*.21)}" fill="none" stroke="${PAPER}" stroke-opacity=".3" stroke-width="${f(sw)}"/>`;
+    if(h>55){
+      // cut-out circuitry: a seam of diamonds with branching nodes, and vine curls from the collar
+      const sw=Math.max(.7,h*.0045), y0=top+h*.27, y1=hem-h*.06;
+      s+=`<path ${laceLine(sw)} d="M${f(x)},${f(y0)} Q${f(x+sway*.4)},${f((y0+y1)/2)} ${f(x+sway*.6)},${f(y1)}"/>`;
+      let dm="",nd="",br="";
+      for(let y=y0+h*.05,k=0;y<y1-h*.03;y+=h*(big?.065:.08),k++){
+        const t=(y-y0)/(y1-y0), cx=x+sway*.6*t, ds=h*.011;
+        dm+=`M${f(cx)},${f(y-ds)} L${f(cx+ds*.7)},${f(y)} L${f(cx)},${f(y+ds)} L${f(cx-ds*.7)},${f(y)}Z `;
+        if(k%2===0&&t>.15){const sd=k%4?1:-1,ex=cx+sd*w*(.12+t*.18),ey=y+h*.035;br+=`M${f(cx)},${f(y)} L${f(cx+sd*w*.05)},${f(y)} L${f(ex)},${f(ey)} `;nd+=`<circle cx="${f(ex)}" cy="${f(ey)}" r="${f(h*.007)}" ${lace(.6)}/>`}
+      }
+      s+=`<path d="${dm}" ${lace(.62)}/><path ${laceLine(sw*.8,.4)} d="${br}"/>${nd}`;
+      s+=curl(x-w*.16,top+h*.25,h*.022,1.2,LACE,sw,-1,.45,0)+curl(x+w*.16,top+h*.25,h*.022,1.2,LACE,sw,1,.45,180);
+      if(big){
+        // a constellation woven into the robe
+        let cs="",cl="",prev=null;
+        for(let i=0;i<9;i++){const t=.3+r()*.6,yy=top+h*(.3+t*.5),xx=x+(r()-.5)*w*(.5+t*.6);cs+=`<circle cx="${f(xx)}" cy="${f(yy)}" r="${f(h*(.004+r()*.004))}" ${lace(.75)}/>`;if(prev&&r()<.7)cl+=`M${f(prev[0])},${f(prev[1])} L${f(xx)},${f(yy)} `;prev=[xx,yy]}
+        s+=`<path ${laceLine(sw*.6,.3)} d="${cl}"/>${cs}`;
+        s+=`<path ${laceLine(sw)} d="M${f(x-w*.4)},${f(top+h*.295)} Q${f(x)},${f(top+h*.255)} ${f(x+w*.4)},${f(top+h*.295)}"/>`;
+      }
     }
   }
-  // head with a pointed chin toward where it faces
-  s+=`<path ${fillA} d="M${f(x-hr)},${f(hy-hr*.4)} C${f(x-hr)},${f(hy-hr*1.6)} ${f(x+hr)},${f(hy-hr*1.6)} ${f(x+hr)},${f(hy-hr*.4)} C${f(x+hr)},${f(hy+hr*.5)} ${f(x+face*hr*.6)},${f(hy+hr*1.2)} ${f(x+face*hr*.95)},${f(hy+hr*1.55)} C${f(x-face*hr*.1)},${f(hy+hr*1.25)} ${f(x-hr)},${f(hy+hr*.5)} ${f(x-hr)},${f(hy-hr*.4)}Z"/>`;
-  if(hood){
-    const X=dx=>x-face*dx, tx=X(h*.11), ty=top-h*.025;
-    s+=`<path ${fillA} d="M${f(X(-h*.055))},${f(hy+h*.02)} Q${f(X(-h*.03))},${f(top-h*.06)} ${f(tx)},${f(ty)} Q${f(X(h*.03))},${f(top+h*.03)} ${f(X(h*.055))},${f(hy+h*.045)}Z"/>`;
-    if(!ghost&&h>40)s+=curl(tx,ty+h*.018,h*.02,1.1,col,Math.max(.9,h*.008),-face,1,-90);
+  // halo: a thin wire ring, rayed for +2
+  if(hood&&!ghost&&h>30){
+    const hr2=hr*(big?2.3:1.9);
+    s+=`<circle cx="${f(x-face*hr*.15)}" cy="${f(hy-hr*.2)}" r="${f(hr2)}" fill="none" stroke="${col}" stroke-width="${f(Math.max(.7,h*.004))}"/>`;
+    if(big){let ry="";for(let i=0;i<16;i++){const a=i/16*Math.PI*2;ry+=`M${f(x-face*hr*.15+Math.cos(a)*hr2*1.08)},${f(hy-hr*.2+Math.sin(a)*hr2*1.08)} L${f(x-face*hr*.15+Math.cos(a)*hr2*(i%2?1.25:1.4))},${f(hy-hr*.2+Math.sin(a)*hr2*(i%2?1.25:1.4))} `}s+=`<path d="${ry}" stroke="${col}" stroke-width="${f(Math.max(.6,h*.0035))}" stroke-linecap="round"/>`}
   }
-  const lw=Math.max(1.1,h*.014);
+  // smooth mask of a head
+  s+=`<ellipse cx="${f(x)}" cy="${f(hy)}" rx="${f(hr)}" ry="${f(hr*1.28)}" ${fillA}/>`;
+  // crest: one curled spire, or a crown of three for +2
+  if(hood){
+    const spire=(dx,ht,c)=>{const bx=x+dx*hr,tx=x-face*h*.045+dx*hr*1.6,ty=hy-hr*1.2-ht;return`<path ${fillA} d="M${f(bx-hr*.35)},${f(hy-hr*.9)} Q${f(bx-hr*.1)},${f(ty+ht*.4)} ${f(tx)},${f(ty)} Q${f(bx+hr*.25)},${f(ty+ht*.45)} ${f(bx+hr*.4)},${f(hy-hr*.9)}Z"/>`+(c&&!ghost?curl(tx,ty+h*.012,h*.013,1.1,col,Math.max(.8,h*.006),-face,1,-90):"")};
+    s+=big?spire(-.55,h*.07,0)+spire(.55,h*.07,0)+spire(0,h*.11,1):spire(0,h*.1,1);
+  }
+  if(!ghost&&eyes){
+    const pts=big?[[.38,-.28],[.6,.12],[.18,.18]]:[[.45,-.08]];
+    pts.forEach(([ex,ey])=>{const px=x+face*hr*ex,py=hy+hr*ey;s+=`<ellipse cx="${f(px)}" cy="${f(py)}" rx="${f(hr*(big?.16:.3))}" ry="${f(hr*(big?.16:.13))}" fill="${FLAME}"/>`;const q=rot(px,py,x,b,lean);EYES.push([q.x,q.y,Math.max(2.5,h*(big?.014:.02))])});
+  }
   // legs ending in curled, pointed shoes
   [[-1,.14,.2],[1,.14,.22]].forEach(([sd,a,bb])=>{const hx=x+sd*w*a,ax=x+sd*w*bb;s+=`<path ${lineA(lw)} d="M${f(hx)},${f(hem)} L${f(ax)},${f(b-h*.012)} Q${f(ax+face*h*.03)},${f(b+h*.004)} ${f(ax+face*h*.055)},${f(b-h*.022)}"/>`});
   const hands=[];
   arms.forEach(([a,l,bend=0])=>{
-    const L=h*l, sx=x+(Math.cos(a*R)<0?-1:1)*w*.1, sy=sh;
+    const L=h*l, sx=x+(Math.cos(a*R)<0?-1:1)*w*.12, sy=sh;
     const ex=sx+Math.cos(a*R)*L/2, ey=sy+Math.sin(a*R)*L/2, a2=a+bend;
     const hx=ex+Math.cos(a2*R)*L/2, hyy=ey+Math.sin(a2*R)*L/2;
-    s+=`<path ${lineA(lw*1.05)} d="M${f(sx)},${f(sy)} L${f(ex)},${f(ey)} L${f(hx)},${f(hyy)}"/>`;
-    if(!ghost)s+=`<circle cx="${f(ex)}" cy="${f(ey)}" r="${f(lw*.85)}" fill="${col}"/>`;
-    const fl2=h*.042;
-    [-34,-12,10,32].forEach(k=>{const e=(a2+k)*R,c=(a2+k-14)*R;s+=`<path ${lineA(lw*.55)} d="M${f(hx)},${f(hyy)} Q${f(hx+Math.cos(c)*fl2*.6)},${f(hyy+Math.sin(c)*fl2*.6)} ${f(hx+Math.cos(e)*fl2)},${f(hyy+Math.sin(e)*fl2)}"/>`});
+    if(!ghost){
+      // bell sleeve hanging from the upper arm
+      const dn=h*(big?.075:.055), mx=sx+(ex-sx)*.88, my=sy+(ey-sy)*.88, cx=Math.cos(a*R);
+      s+=`<path fill="${col}" d="M${f(sx)},${f(sy-lw)} Q${f((sx+mx)/2)},${f((sy+my)/2-lw)} ${f(mx)},${f(my-lw*.5)} Q${f(mx+cx*h*.006)},${f(my+dn*.5)} ${f(mx-cx*h*.012)},${f(my+dn)} Q${f(sx+(mx-sx)*.45)},${f(sy+(my-sy)*.45+dn*1.15)} ${f(sx)},${f(sy+h*.1)}Z"/>`;
+    }
+    s+=`<path ${lineA(lw)} d="M${f(sx)},${f(sy)} L${f(ex)},${f(ey)} L${f(hx)},${f(hyy)}"/>`;
+    const fl2=h*.04;
+    [-36,-13,10,33].forEach(k=>{const e=(a2+k)*R,c=(a2+k-16)*R;s+=`<path ${lineA(lw*.5)} d="M${f(hx)},${f(hyy)} Q${f(hx+Math.cos(c)*fl2*.6)},${f(hyy+Math.sin(c)*fl2*.6)} ${f(hx+Math.cos(e)*fl2)},${f(hyy+Math.sin(e)*fl2)}"/>`});
     hands.push(rot(hx,hyy,x,b,lean));
   });
-  return{svg:s+"</g>",hands,top:rot(x,top,x,b,lean)};
+  return{svg:s+"</g>",hands,top:rot(x,top-h*.1,x,b,lean)};
+}
+
+// A person: rounder head with a nose in profile, a bright eye, varied hair, a short coat and a scarf.
+function human({x,b,h,arms=[],lean=0,seed=1,ink=SIL,hood}){
+  const r=rng(seed*4441+Math.round(x*7+h*3));
+  const face=arms.length?(Math.cos(arms[0][0]*R)<0?-1:1):(seed%2?1:-1);
+  const hr=h*.1, hy=b-h+hr*1.15, shY=hy+hr*1.45, hem=b-h*.3, w1=h*.14, w2=h*(.2+r()*.05);
+  const lw=Math.max(1,h*.034);
+  let s=`<g transform="rotate(${lean} ${f(x)} ${f(b)})">`;
+  // legs and small feet
+  [[-1,.35],[1,.35]].forEach(([sd,o])=>{const lx=x+sd*w1*o;s+=`<path d="M${f(lx)},${f(hem-2)} L${f(lx+sd*h*.01)},${f(b-h*.02)}" stroke="${ink}" stroke-width="${f(lw)}" stroke-linecap="round"/><ellipse cx="${f(lx+sd*h*.01+face*h*.025)}" cy="${f(b-h*.018)}" rx="${f(h*.05)}" ry="${f(h*.022)}" fill="${ink}"/>`});
+  // A-line coat with rounded shoulders
+  s+=`<path fill="${ink}" d="M${f(x-w1*.55)},${f(shY)} Q${f(x-w1)},${f(shY)} ${f(x-w1)},${f(shY+h*.06)} L${f(x-w2)},${f(hem)} Q${f(x)},${f(hem+h*.03)} ${f(x+w2)},${f(hem)} L${f(x+w1)},${f(shY+h*.06)} Q${f(x+w1)},${f(shY)} ${f(x+w1*.55)},${f(shY)}Z"/>`;
+  if(h>40)s+=`<path d="M${f(x-w1*.8)},${f(shY+h*.17)} Q${f(x)},${f(shY+h*.19)} ${f(x+w1*.85)},${f(shY+h*.17)}" fill="none" stroke="${LACE}" stroke-opacity=".35" stroke-width="${f(Math.max(.6,h*.012))}"/>`;
+  // neck and head with a nose in profile
+  s+=`<rect x="${f(x-hr*.35)}" y="${f(hy+hr*.6)}" width="${f(hr*.7)}" height="${f(hr*1)}" fill="${ink}"/>`;
+  s+=`<circle cx="${f(x)}" cy="${f(hy)}" r="${f(hr)}" fill="${ink}"/>`;
+  s+=`<path fill="${ink}" d="M${f(x+face*hr*.88)},${f(hy-hr*.12)} Q${f(x+face*hr*1.2)},${f(hy+hr*.16)} ${f(x+face*hr*.92)},${f(hy+hr*.3)}Z"/>`;
+  // hair or hat
+  const style=Math.floor(r()*4);
+  if(style===0)s+=`<path fill="${ink}" d="M${f(x-hr*1.1)},${f(hy-hr*.1)} Q${f(x-hr*1.05)},${f(hy-hr*1.45)} ${f(x+hr*.2)},${f(hy-hr*1.3)} Q${f(x+face*hr*1.5)},${f(hy-hr*1.15)} ${f(x+face*hr*1.45)},${f(hy-hr*.55)}Z"/>`;
+  if(style===1)s+=`<circle cx="${f(x-face*hr*.75)}" cy="${f(hy-hr*.95)}" r="${f(hr*.5)}" fill="${ink}"/>`;
+  if(style===2)s+=`<ellipse cx="${f(x)}" cy="${f(hy-hr*.7)}" rx="${f(hr*1.7)}" ry="${f(hr*.22)}" fill="${ink}"/><path fill="${ink}" d="M${f(x-hr*.8)},${f(hy-hr*.7)} Q${f(x-hr*.75)},${f(hy-hr*1.75)} ${f(x)},${f(hy-hr*1.7)} Q${f(x+hr*.75)},${f(hy-hr*1.75)} ${f(x+hr*.8)},${f(hy-hr*.7)}Z"/>`;
+  if(style===3)s+=`<path fill="${ink}" d="M${f(x+face*hr*.6)},${f(hy-hr*.9)} Q${f(x-face*hr*1.6)},${f(hy-hr*1.4)} ${f(x-face*hr*1.5)},${f(shY+h*.05)} L${f(x-face*hr*.6)},${f(shY)} Q${f(x-face*hr*.9)},${f(hy)} ${f(x+face*hr*.6)},${f(hy-hr*.9)}Z"/>`;
+  // a bright eye
+  if(h>16)s+=`<circle cx="${f(x+face*hr*.45)}" cy="${f(hy-hr*.12)}" r="${f(hr*.13)}" fill="${LACE}" fill-opacity=".85"/>`;
+  // a scarf trailing behind
+  if(r()<.55&&h>30)s+=`<path fill="${ink}" d="M${f(x-hr*.5)},${f(shY-hr*.1)} Q${f(x-face*h*.12)},${f(shY+h*.02)} ${f(x-face*h*.22)},${f(shY+h*.1)} Q${f(x-face*h*.14)},${f(shY+h*.04)} ${f(x+hr*.5)},${f(shY+hr*.25)}Z"/>`;
+  const hands=[];
+  arms.forEach(([a,l,bend=0])=>{
+    const L=h*l, sx=x+(Math.cos(a*R)<0?-1:1)*w1*.7, sy=shY+h*.03;
+    const ex=sx+Math.cos(a*R)*L/2, ey=sy+Math.sin(a*R)*L/2, a2=a+bend;
+    const hx=ex+Math.cos(a2*R)*L/2, hyy=ey+Math.sin(a2*R)*L/2;
+    s+=`<path d="M${f(sx)},${f(sy)} L${f(ex)},${f(ey)} L${f(hx)},${f(hyy)}" fill="none" stroke="${ink}" stroke-width="${f(lw*.9)}" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${f(hx)}" cy="${f(hyy)}" r="${f(lw*.75)}" fill="${ink}"/>`;
+    hands.push(rot(hx,hyy,x,b,lean));
+  });
+  return{svg:s+"</g>",hands,top:rot(x,b-h,x,b,lean)};
 }
 
 // A bare, twisting tree with curled tips.
@@ -104,9 +177,9 @@ const palm=(p,w)=>`<ellipse cx="${f(p.x)}" cy="${f(p.y+1)}" rx="${w}" ry="${f(w*
 function nestedGods(light){
   const giant=fig({x:700,b:1050,h:1050,arms:[[150,.36,15]],ghost:true,light});
   const gh=giant.hands[0];
-  const mid=fig({x:gh.x,b:gh.y,h:150,arms:[[198,.55,-14]],seed:4}), mh=mid.hands[0];
+  const mid=fig({x:gh.x,b:gh.y,h:150,arms:[[198,.55,-14]],seed:4,kind:"ai2"}), mh=mid.hands[0];
   const small=fig({x:mh.x-2,b:mh.y,h:62,arms:[[200,.62,-14]],seed:6}), sh=small.hands[0];
-  const us=fig({x:sh.x+2,b:sh.y,h:18,hood:0,seed:8});
+  const us=fig({x:sh.x+2,b:sh.y,h:18,seed:8,kind:"human"});
   return{giant:giant.svg,gods:palm(gh,26)+palm(mh,14)+palm(sh,7)+mid.svg+small.svg+us.svg,gh,mh,sh,top:us.top};
 }
 
@@ -122,8 +195,8 @@ hero(){
     labels:[[N.sh.x-22,N.sh.y-26,"us",1],[N.mh.x-30,N.mh.y+86,"the gods we're making",1],[600,40,"and the hand that holds them?",1]]};
 },
 board(){
-  const K=SKY.dusk, small=fig({x:235,b:345,h:125,arms:[[-12,.42,22],[100,.28,0]],seed:2});
-  const giant=fig({x:620,b:345,h:315,lean:-9,arms:[[150,.62,-32],[96,.34,-8]],seed:3});
+  const K=SKY.dusk, small=fig({x:235,b:345,h:125,arms:[[-12,.42,22],[100,.28,0]],seed:2,kind:"human"});
+  const giant=fig({x:620,b:345,h:315,lean:-9,arms:[[150,.62,-32],[96,.34,-8]],seed:3,kind:"ai2"});
   const gp={x:378,y:262}, hand=giant.hands[0];
   const table=`<rect x="320" y="270" width="210" height="9" rx="2" fill="${SIL}"/><path d="M338,279 L332,345 L340,345 L345,279Z M505,279 L512,345 L520,345 L512,279Z" fill="${SIL}"/>`+curl(326,300,8,1.2,SIL,2,1)+curl(524,300,8,1.2,SIL,2,-1)+`<path d="M345,270 l5,-14 l5,14Z M410,270 l4,-18 l4,18Z M440,270 l6,-11 l6,11Z M478,270 l4,-20 l4,20Z M500,270 l5,-12 l5,12Z" fill="${SIL}"/>`;
   return{sky:"dusk",sun:[700,70],
@@ -135,7 +208,7 @@ board(){
 },
 tower(){
   const K=SKY.dusk;
-  const f0=fig({x:105,b:342,h:84,arms:[[-60,.3,10]],seed:2}), f1=fig({x:300,b:290,h:124,arms:[[150,.5,-18]],seed:3}), f2=fig({x:500,b:227,h:172,arms:[[150,.52,-18]],seed:4}), f3=fig({x:705,b:151,h:150,arms:[[150,.55,-18]],ghost:true,seed:5});
+  const f0=fig({x:105,b:342,h:84,arms:[[-60,.3,10]],seed:2,kind:"human"}), f1=fig({x:300,b:290,h:124,arms:[[150,.5,-18]],seed:3}), f2=fig({x:500,b:227,h:172,arms:[[150,.52,-18]],seed:4,kind:"ai2"}), f3=fig({x:705,b:151,h:150,arms:[[150,.55,-18]],ghost:true,seed:5});
   const cliff=`<path d="M-10,410 L-10,342 L195,342 Q197,318 198,292 L395,290 Q396,260 398,228 L595,226 Q596,190 598,152 L810,150 L810,410Z" fill="${SIL}"/>`+curl(196,318,9,1.2,PAPER,1.4,1,.35)+curl(397,258,11,1.2,PAPER,1.4,1,.35)+curl(597,190,13,1.2,PAPER,1.4,1,.35);
   return{sky:"dusk",sun:[700,40],
     far:hills(260,14,6,K.far)+smokeBand(70,5,K.far,.4,1.4,1.4)+tree({x:40,b:260,h:80,seed:31,col:K.far,depth:4}),
@@ -146,7 +219,7 @@ tower(){
 },
 flame(){
   const K=SKY.dusk;
-  const A=fig({x:140,b:345,h:270,arms:[[18,.48,34],[100,.3,0]],seed:2}), B=fig({x:345,b:345,h:178,arms:[[205,.34,-25],[20,.4,32]],seed:3}), C=fig({x:495,b:345,h:116,arms:[[205,.36,-25],[22,.42,30]],seed:4}), D=fig({x:604,b:345,h:74,arms:[[205,.38,-25],[24,.46,28]],seed:5}), E=fig({x:682,b:345,h:46,arms:[[205,.4,-25],[-40,.36,0]],seed:6});
+  const A=fig({x:140,b:345,h:270,arms:[[18,.48,34],[100,.3,0]],seed:2,kind:"ai2"}), B=fig({x:345,b:345,h:178,arms:[[205,.34,-25],[20,.4,32]],seed:3}), C=fig({x:495,b:345,h:116,arms:[[205,.36,-25],[22,.42,30]],seed:4}), D=fig({x:604,b:345,h:74,arms:[[205,.38,-25],[24,.46,28]],seed:5}), E=fig({x:682,b:345,h:46,arms:[[205,.4,-25],[-40,.36,0]],seed:6});
   const fl=[A.hands[0],B.hands[1],C.hands[1],D.hands[1],E.hands[1]], sz=[11,8,6,4.5,3.5];
   return{sky:"dusk",sun:[740,250],
     far:hills(300,9,8,K.far)+tree({x:730,b:302,h:110,seed:41,col:K.far,depth:4})+smokeBand(90,6,K.far,.4),
@@ -157,7 +230,7 @@ flame(){
 },
 crown(){
   const P=fig({x:330,b:345,h:240,lean:7,arms:[[-8,.56,12],[100,.3,-6]],seed:2});
-  const fallen=fig({x:770,b:300,h:170,lean:-84,seed:3}), usurper=fig({x:590,b:300,h:130,arms:[[-75,.42,10],[95,.25,0]],seed:4}), uh=usurper.hands[0];
+  const fallen=fig({x:770,b:300,h:170,lean:-84,seed:3,eyes:false}), usurper=fig({x:590,b:300,h:130,arms:[[-75,.42,10],[95,.25,0]],seed:4,eyes:false}), uh=usurper.hands[0];
   const arch=`<path d="M60,340 L60,120 Q60,40 140,40 Q220,40 220,120 L220,340Z" fill="#f2dcaa" opacity=".55"/><path d="M140,40 L140,340 M60,190 L220,190" stroke="#8a6a3a" stroke-width="3" opacity=".5"/>`;
   return{sky:"dusk",sun:[140,140],
     far:`<rect width="800" height="335" fill="#5a4024" opacity=".18"/>${arch}<g opacity=".42" filter="url(#soft)" transform="translate(0,-20)">${fallen.svg}${usurper.svg}${crownShape(uh.x,uh.y-2,12,SIL)}</g>`,
@@ -168,7 +241,7 @@ crown(){
 },
 fire(){
   const K=SKY.dusk;
-  const L1=fig({x:140,b:348,h:222,lean:4,arms:[[38,.42,22]],seed:2}), L2=fig({x:258,b:350,h:244,lean:3,arms:[[48,.38,18]],hood:0,seed:3}), R1=fig({x:548,b:350,h:238,lean:-3,arms:[[132,.38,-18]],seed:4}), R2=fig({x:666,b:348,h:214,lean:-4,arms:[[142,.42,-22]],hood:0,seed:5});
+  const L1=fig({x:140,b:348,h:222,lean:4,arms:[[38,.42,22]],seed:2,kind:"ai2"}), L2=fig({x:258,b:350,h:244,lean:3,arms:[[48,.38,18]],seed:3,kind:"ai2"}), R1=fig({x:548,b:350,h:238,lean:-3,arms:[[132,.38,-18]],seed:4,kind:"ai2"}), R2=fig({x:666,b:348,h:214,lean:-4,arms:[[142,.42,-22]],hood:0,seed:5});
   const blade=(x1,y1,x2,y2)=>{const mx=x1+(x2-x1)*.25,my=y1+(y2-y1)*.25,dx=(y2-y1)*.08,dy=-(x2-x1)*.08;return`<path d="M${x1},${y1} L${x2},${y2} M${f(mx-dx)},${f(my-dy)} L${f(mx+dx)},${f(my+dy)}" stroke="${SIL}" stroke-width="3" stroke-linecap="round"/>`};
   let stair="";[[440,250,14],[470,205,17],[505,160,20],[540,118,23],[580,78,26],[625,40,30]].forEach(([x,y,r],i)=>{stair+=curl(x,y,r,1.6,PALE,1.8,i%2?1:-1,.75,i*50)});
   return{sky:"dusk",sun:[400,300],
@@ -181,7 +254,7 @@ fire(){
 watcher(){
   const K=SKY.night;
   const giant=fig({x:610,b:770,h:720,arms:[[150,.5,-24]],ghost:true,light:true,seed:9});
-  const W=fig({x:285,b:250,h:190,lean:-5,arms:[[-72,.46,-12],[40,.34,40]],seed:2}), k1=fig({x:323,b:254,h:52,seed:3}), k2=fig({x:346,b:258,h:40,seed:4}), k3=fig({x:248,b:252,h:46,hood:0,seed:5});
+  const W=fig({x:285,b:250,h:190,lean:-5,arms:[[-72,.46,-12],[40,.34,40]],seed:2,kind:"ai2"}), k1=fig({x:323,b:254,h:52,seed:3,kind:"human"}), k2=fig({x:346,b:258,h:40,seed:4,kind:"human"}), k3=fig({x:248,b:252,h:46,seed:5,kind:"human"});
   return{sky:"night",sun:[640,90],
     far:stars(60,7)+`<g opacity=".45">${giant.svg}</g>`+smokeBand(120,8,K.mist,.3,1.4,1.3)+hills(320,8,13,K.far),
     mid:`<path d="M-10,410 L-10,300 C120,238 300,226 410,268 C540,318 690,330 810,318 L810,410Z" fill="${SIL}"/>`+W.svg+k1.svg+k2.svg+k3.svg,
@@ -192,7 +265,7 @@ watcher(){
 glass(){
   const K=SKY.dusk, P=fig({x:400,b:345,h:250,arms:[[120,.3,10],[60,.3,-10]],seed:2}), top=95;
   let ribs="";for(let i=0;i<6;i++){const y=top+250*(.3+i*.1),hw=250*.27*(.25+i*.065);ribs+=`<path d="M${f(400-hw)},${f(y)} Q400,${f(y-10)} ${f(400+hw)},${f(y)}" fill="none" stroke="#f3c568" stroke-width="1.6" opacity=".85"/>`}
-  const a=fig({x:170,b:345,h:80,arms:[[-30,.5,10]],seed:3}), b=fig({x:250,b:345,h:64,arms:[[-40,.5,10]],hood:0,seed:4}), c=fig({x:620,b:345,h:84,arms:[[210,.5,-10]],seed:5});
+  const a=fig({x:170,b:345,h:80,arms:[[-30,.5,10]],seed:3,kind:"human"}), b=fig({x:250,b:345,h:64,arms:[[-40,.5,10]],seed:4,kind:"human"}), c=fig({x:620,b:345,h:84,arms:[[210,.5,-10]],seed:5,kind:"human"});
   const lan=[a.hands[0],b.hands[0],c.hands[0]];
   return{sky:"dusk",sun:[400,200],
     far:hills(312,9,14,K.far)+smokeBand(80,15,K.far,.4),
@@ -203,7 +276,7 @@ glass(){
 },
 ledger(){
   const K=SKY.dusk;
-  const L1=fig({x:150,b:345,h:230,arms:[[12,.5,20]],seed:2}), L2=fig({x:250,b:345,h:190,arms:[[20,.52,10]],hood:0,seed:3}), R1=fig({x:560,b:345,h:205,arms:[[165,.5,-12]],seed:4}), R2=fig({x:660,b:345,h:240,arms:[[170,.52,-18]],hood:0,seed:5});
+  const L1=fig({x:150,b:345,h:230,arms:[[12,.5,20]],seed:2,kind:"ai2"}), L2=fig({x:250,b:345,h:190,arms:[[20,.52,10]],hood:0,seed:3}), R1=fig({x:560,b:345,h:205,arms:[[165,.5,-12]],seed:4}), R2=fig({x:660,b:345,h:240,arms:[[170,.52,-18]],seed:5,kind:"ai2"});
   return{sky:"dusk",sun:[400,240],
     far:hills(300,10,15,K.far)+smokeBand(60,16,K.far,.4,1.2),
     mid:`<rect x="200" y="268" width="400" height="9" rx="2" fill="${SIL}"/><path d="M220,277 L214,345 L222,345 L227,277Z M573,277 L580,345 L588,345 L580,277Z" fill="${SIL}"/>`+L1.svg+L2.svg+R1.svg+R2.svg+`<rect x="330" y="252" width="140" height="14" rx="3" fill="#f1dfb2"/><path d="M342,257 H458 M342,261 H440" stroke="#8a6a3a" stroke-width="1"/>`+curl(330,259,7,1.2,"#f1dfb2",2,-1)+curl(470,259,7,1.2,"#f1dfb2",2,1),
@@ -223,7 +296,7 @@ summit(){
 race(){
   const K=SKY.dusk;
   const r=[[200,170],[330,190],[460,175],[640,215]].map(([x,h],i)=>fig({x,b:345,h,lean:16,arms:[[-20,.5,10]],seed:i+2}));
-  const left=[fig({x:70,b:345,h:52,seed:7}),fig({x:105,b:345,h:44,hood:0,seed:8})];
+  const left=[fig({x:70,b:345,h:52,seed:7,kind:"human"}),fig({x:105,b:345,h:44,seed:8,kind:"human"})];
   return{sky:"dusk",sun:[760,200],
     far:`<rect width="800" height="400" fill="#3a2412" opacity=".22"/>`+hills(300,12,17,K.far)+tree({x:520,b:302,h:110,seed:71,col:K.far,depth:4})+tree({x:300,b:300,h:80,seed:72,col:K.far,depth:3})+smokeBand(60,18,K.far,.4),
     mid:r.map(q=>q.svg).join("")+left.map(q=>q.svg).join("")+r.map(q=>flameShape(q.hands[0].x,q.hands[0].y,6)).join(""),
@@ -244,8 +317,8 @@ copy(){
 },
 taken(){
   const P=fig({x:380,b:345,h:215,arms:[[-95,.4,-6],[110,.3,0]],seed:2}), ch=P.hands[0];
-  const fa=fig({x:440,b:336,h:70,lean:84,seed:3}), fb=fig({x:322,b:336,h:62,lean:-84,seed:4});
-  const sh=[fig({x:640,b:310,h:190,arms:[[-95,.45,-6]],seed:5}),fig({x:720,b:310,h:120,arms:[[-120,.5,0]],seed:6})];
+  const fa=fig({x:440,b:336,h:70,lean:84,seed:3,kind:"human"}), fb=fig({x:322,b:336,h:62,lean:-84,seed:4,kind:"human"});
+  const sh=[fig({x:640,b:310,h:190,arms:[[-95,.45,-6]],seed:5,eyes:false}),fig({x:720,b:310,h:120,arms:[[-120,.5,0]],seed:6,eyes:false})];
   return{sky:"dusk",sun:[380,90],
     far:`<rect width="800" height="335" fill="#5a4024" opacity=".18"/><g opacity=".4" filter="url(#soft)">${sh.map(q=>q.svg).join("")}${crownShape(sh[0].hands[0].x,sh[0].hands[0].y,11,SIL)}</g>`,
     mid:P.svg+crownShape(ch.x,ch.y,18,"#e9b24f"),
@@ -271,7 +344,9 @@ window.SG={SKY,layerSVG,scenes:new Map()};
 document.querySelectorAll("svg[data-scene]").forEach(svg=>{
   const make=SCENES[svg.dataset.scene];
   if(!make){console.error("unknown scene",svg.dataset.scene);return}
+  EYES=[];
   const d=make();
+  d.glows=d.glows.concat(EYES);
   svg.innerHTML=composite(d);
   svg.classList.add("fallback");
   window.SG.scenes.set(svg,d);
