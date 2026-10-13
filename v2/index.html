@@ -271,6 +271,7 @@ footer{position:relative;z-index:1;text-align:center;padding:40px 16px 60px;font
       <button type="button" class="dark" data-choose="dark" data-other="dark"><b>Read the Dark Forest</b><span>Power gets there first</span></button>
       <button type="button" class="light" data-choose="light" data-other="light" hidden><b>Read the Fog Lifts</b><span>Verification keeps up</span></button>
     </div>
+    <div class="tally" data-tally hidden></div>
     <p><a href="../research.html">The research: 105 sources, the strongest objections, and a 2,500-year timeline ↗</a></p>
   </div></section>
 </div>
@@ -283,6 +284,7 @@ footer{position:relative;z-index:1;text-align:center;padding:40px 16px 60px;font
   // Without WebGL the cards still read; say why the background is empty.
   try{const c=document.createElement("canvas");if(!(c.getContext("webgl2")||c.getContext("webgl")))document.getElementById("nogl").style.display="block"}catch(e){}
 </script>
+<script src="../assets/tally.js"></script>
 <script type="module" src="main.js"></script>
 </body>
 </html>

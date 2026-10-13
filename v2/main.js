@@ -179,6 +179,7 @@ frame();
 const endings = { light: document.getElementById("ending-light"), dark: document.getElementById("ending-dark") };
 document.querySelectorAll("[data-choose]").forEach(b => b.addEventListener("click", () => {
   const pick = b.dataset.choose, other = pick === "light" ? "dark" : "light";
+  window.SGTally?.record(pick, "b").then(() => window.SGTally.render());
   endings[pick].hidden = false; endings[other].hidden = true;
   document.getElementById("after").hidden = false;
   document.querySelectorAll("[data-other]").forEach(o => o.hidden = o.dataset.other !== other);
