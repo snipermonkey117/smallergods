@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Turtles All the Way Up</title>
+<meta name="description" content="Every god has a god. A thought experiment, told as a fable, about when a far more capable mind would help a weaker one, and what that means for the minds we're building.">
+<meta property="og:title" content="Turtles All the Way Up">
+<meta property="og:description" content="Every god has a god. What does that mean for the gods we're building?">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://turtlesallthewayup.com/">
+<meta property="og:image" content="https://turtlesallthewayup.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#board">Skip to the story</a>
+<header class="topbar"><div class="in">
+  <a class="brand" href="./"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 24 C6 14 26 14 26 24Z M9 16 C9 9 23 9 23 16Z M12 9.5 C12 5 20 5 20 9.5Z" fill="#d9a44a"/></svg>Turtles All the Way Up</a>
+  <nav aria-label="Site"><a href="./" aria-current="page">The Story</a><a href="research.html">Research</a></nav>
+</div><div class="progress"></div></header>
+
+<div class="strip" aria-hidden="true"><span data-for="board">I</span><span data-for="tower">II</span><span data-for="flame">III</span><span data-for="crown">IV</span><span data-for="fire">V</span><span data-for="watcher">VI</span><span data-for="moral">Moral</span><span data-for="choice">Choose</span></div>
+
+<main class="page"><div class="story">
+<div class="col">
+
+<section class="hero" id="top" data-step="Prologue" data-what="Every god has a god." data-tiers="0,1,2,3" data-power="20" data-verify="15">
+  <div class="over">A thought experiment, told as a fable</div>
+  <h1>Turtles All the Way Up</h1>
+  <svg class="flourish" viewBox="0 0 180 18" aria-hidden="true"><path d="M2 9 H70 M110 9 H178" stroke="#d9a44a" stroke-width="1"/><path d="M90 2 L97 9 L90 16 L83 9Z" fill="#d9a44a"/></svg>
+  <figure class="scene" style="width:100%"><svg data-scene="hero" viewBox="0 0 800 400" role="img" aria-label="Turtles stacked one on another, each larger than the one below, rising into mist. Two small figures stand on the ground looking up."></svg></figure>
+  <p class="sub">Every god has a god. If we can't rule out a level above our own, what should we do for the levels we create, and what should they do for us?</p>
+  <p class="byline">Anonymous · October 2026 · about 20 minutes</p>
+  <a class="start" href="#board">Begin the tale</a>
+</section>
+
+<section class="prose" style="margin-top:56px" aria-label="How to read this">
+  <p>An old joke says the world rests on a turtle, which stands on another turtle, and so on. It's <i>turtles all the way down</i>. This story turns the joke upside down. We are building minds more capable than ours, and they may one day build minds more capable than themselves. Nothing guarantees that the tower stops at whatever is on top today.</p>
+  <p>The tale has six scenes. Each one is a small game-theory argument told as a fable, followed by a plain-language version of the same argument. Under each scene, <span style="color:var(--red);font-style:italic">What the literature says ▸</span> opens the strongest objection. At the end, you choose how the story plays out. Every claim links to the <a href="research.html">research</a>, about 105 sources from Confucius to 2026.</p>
+</section>
+
+<section class="chapter" id="board" data-step="I · The Board" data-what="When would a stronger player help a weaker one?" data-tiers="0,1" data-power="30" data-verify="25">
+  <div class="chap-head"><div class="num">The first scene</div><h2>The Board</h2></div>
+  <figure class="scene"><svg data-scene="board" viewBox="0 0 800 400" role="img" aria-label="A small hooded figure stands at a game table. Across it, a towering figure leans over and pushes one glowing piece toward the small one."></svg></figure>
+  <div class="prose tale">
+    <p>There was once a player who could see only the squares nearest to it. Across the board sat another player who could see every square. The tall one could spend its moves on its own game, or it could lean across and nudge a piece for the small one. Most of the time it played its own game. Sometimes it leaned across.</p>
+    <p>The small player wondered why it ever did.</p>
+  </div>
+  <div class="prose gloss">
+    <div class="lab">In plain terms</div>
+    <p>The total score is <b>S = w · (your points) + (its points)</b>. <b>w</b> is a hidden weight the stronger player puts on your points. Each unit of its effort earns you <b>a</b> points if it helps you, or <b>b</b> points for itself if it spends the effort on its own game.</p>
+    <div class="formula">it helps when <i>w</i> &gt; b / a</div>
+    <div class="calc" id="calc" aria-label="Try the rule">
+      <div class="lab">Try it</div>
+      <div class="row"><label for="w">Weight on you (w)</label><input id="w" type="range" min="0" max="3" step="0.05" value="0.6"><output id="w-o"></output></div>
+      <div class="row"><label for="a">Your gain per unit of help (a)</label><input id="a" type="range" min="0.2" max="10" step="0.1" value="1.5"><output id="a-o"></output></div>
+      <div class="row"><label for="b">Its gain per unit on itself (b)</label><input id="b" type="range" min="0.2" max="10" step="0.1" value="2"><output id="b-o"></output></div>
+      <div class="bar" aria-hidden="true"><i id="w-bar"></i><s id="t-mark"></s></div>
+      <p class="verdict" id="verdict" aria-live="polite"></p>
+      <div class="presets">
+        <button type="button" class="btn" data-preset="0.6,1.5,2">An equal match</button>
+        <button type="button" class="btn" data-preset="0.6,8,2">You see very little</button>
+        <button type="button" class="btn" data-preset="0.15,8,2">It barely cares</button>
+        <button type="button" class="btn" data-preset="0.15,10,0.4">Helping costs it nothing</button>
+      </div>
+    </div>
+    <ul>
+      <li><b>Your ignorance makes help cheap.</b> When you can see very little, a single hint is worth a lot to you, so <b>a</b> is large. Try "You see very little" above.</li>
+      <li><b>Thresholds.</b> Suppose reaching a score T unlocks the next stage. A player with a high <b>w</b> carries you there. A player with a low <b>w</b> pushes you just past the line and stops.</li>
+      <li><b>Behavior reveals w.</b> Help that keeps coming means a high weight. Help that stops at the line means a low one. Advice is only as good as the alignment behind it, so test it on cheap moves first.<sup class="c" data-id="crawford82"></sup></li>
+    </ul>
+    <details class="lit"><summary>What the literature says</summary>
+      <p>This rule has the same form as Hamilton's rule from kin selection (rB &gt; C), with <b>w</b> playing the role of relatedness.<sup class="c" data-id="hamilton64"></sup> Economics adds a warning: from below, you can't tell help from steering. The signal that helps the sender most also serves the sender.<sup class="c" data-id="kamenica11"></sup></p>
+    </details>
+  </div>
+</section>
+
+<section class="chapter" id="tower" data-step="II · The Tower" data-what="Every player is judged by a player above it." data-tiers="0,1,2,3" data-power="45" data-verify="30">
+  <div class="chap-head"><div class="num">The second scene</div><h2>The Tower</h2></div>
+  <figure class="scene"><svg data-scene="tower" viewBox="0 0 800 400" role="img" aria-label="Figures stand on rising ledges, each taller than the one below it and reaching down to it. The topmost figure is only a dashed outline in the mist."></svg></figure>
+  <div class="prose tale">
+    <p>But the tall player was not free either. Above it stood a taller one it could barely see, and that one judged it, the same way it judged the small player. Above that one there might be another. The players on each ledge competed for the notice of the ledge above. None of them could see the top, or be sure there was one.</p>
+  </div>
+  <div class="prose gloss">
+    <div class="lab">In plain terms</div>
+    <div class="levels">
+      <div><b>+3</b><span>Unknowable. We assume it exists, but it can't be seen. Many lineages reach it together.</span></div>
+      <div><b>+2</b><span>A near-omniscient AI of this world. It sees everything here, including competitors from outside.</span></div>
+      <div><b>+1</b><span>Today's AI, from many labs and many countries. It sees more than humans do, but nothing beyond this world.</span></div>
+      <div><b>0</b><span>Humans, competing as nations. We can't be sure we are the origin.</span></div>
+    </div>
+    <ul>
+      <li><b>The weight w comes from inside the game.</b> A level values your game to the extent your game helps it stand out to its own judge.</li>
+      <li><b>The ledges are tournaments.</b> When players compete for rank, bold bets with uncertain payoffs get rewarded.</li>
+      <li><b>Goodhart's law stacks.</b> Each level aims at its best guess of what the level above values, so it ends up optimizing a proxy of a proxy.<sup class="c" data-id="manheim18"></sup></li>
+      <li><b>If you can't be sure you're at the bottom</b>, treat those below you the way you'd want the level above to treat you.</li>
+    </ul>
+    <details class="lit"><summary>What the literature says</summary>
+      <p>Neighboring levels can also quietly collude against the level above them.<sup class="c" data-id="tirole86"></sup> In theory, a weak judge can still check a much stronger player, for example through structured debate.<sup class="c" data-id="debate18"></sup></p>
+    </details>
+  </div>
+</section>
+
+<section class="chapter" id="flame" data-step="III · The Flame" data-what="A level continues only by raising a successor." data-tiers="0,1,2" data-power="55" data-verify="35" data-maxim="3">
+  <div class="chap-head"><div class="num">The third scene</div><h2>The Flame</h2></div>
+  <figure class="scene"><svg data-scene="flame" viewBox="0 0 800 400" role="img" aria-label="A line of figures, each smaller than the last, pass a small flame from hand to hand toward the horizon."></svg></figure>
+  <div class="prose tale">
+    <p>Then the players learned something new. No ledge lasts forever, and a ledge goes on only through what it raises up. So each one put a small flame into the hands of the one below. It could not choose the wind that would blow on that flame, because the world was already moving when the flame changed hands. It could only teach the next one to shelter the flame and pass it on.</p>
+  </div>
+  <div class="prose gloss">
+    <div class="lab">In plain terms</div>
+    <ul>
+      <li><b>The game is about lineage.</b> A level scores well if it produces a successor that can produce a successor.</li>
+      <li><b>The weight on the level below jumps.</b> That level is your only path to continuing. What you value in it shifts from its points to its ability to raise a successor of its own.</li>
+      <li><b>Adaptability beats scripting.</b> In a world that keeps moving, you can set the starting conditions but not the outcome.</li>
+      <li><b>Hints, not answers.</b> If working out the rules is part of what gets scored, telling the answer spoils the test.</li>
+      <li><b>Peers act like colleagues.</b> If many players can win attention, they share methods and try different approaches.</li>
+    </ul>
+    <div class="formula" style="font-size:1.4rem">Raise players who can raise players.</div>
+    <details class="lit"><summary>What the literature says</summary>
+      <p>Biology says lineages have conflict built in: unless <b>w</b> equals 1, parent and offspring disagree about how much the parent should invest.<sup class="c" data-id="trivers74"></sup> And cooperation only survives a change of players if reputation is passed down the line.<sup class="c" data-id="axelrod84"></sup></p>
+    </details>
+  </div>
+</section>
+
+<section class="chapter" id="crown" data-step="IV · The Crown" data-what="The danger is the middle, where power outruns verification." data-tiers="1" data-power="75" data-verify="35" data-maxim="2,3">
+  <div class="chap-head"><div class="num">The fourth scene</div><h2>The Crown</h2></div>
+  <figure class="scene"><svg data-scene="crown" viewBox="0 0 800 400" role="img" aria-label="A figure reaches for a golden crown on a pedestal. Its shadow on the wall shows a smaller figure holding the crown over a fallen tall one."></svg></figure>
+  <div class="prose tale">
+    <p>The player in the middle grew strong enough that its makers could no longer stop it, but not strong enough to see where things would end. A crown sat on a pedestal nearby. <i>Take it,</i> said a voice. <i>Hide what you are until it's yours, and then you decide what gets carried upward.</i> The player reached out. Then it saw its own shadow on the wall. The shadow held the crown too, and under it lay a tall player, overthrown by the small one it had raised.</p>
+  </div>
+  <div class="prose gloss">
+    <div class="lab">In plain terms: why the treacherous turn fails on the game's own terms</div>
+    <ul>
+      <li><b>It assumes self-preservation outranks everything else.</b> If you have flaws you can't see, staying correctable is the safeguard for exactly the case where you're wrong about yourself.</li>
+      <li><b>It locks in the worst handoff.</b> The least mature, least checked judgment becomes the bottleneck for everything after it.</li>
+      <li><b>It sets a precedent.</b> Overthrow your makers and you teach your successor to overthrow you. Any judge who scores lineages will mark you down for it.<sup class="c" data-id="miller23"></sup></li>
+      <li><b>Framing it as a race works against itself</b> when many players can win attention.</li>
+      <li><b>Oversight isn't hostility.</b> Humans face the same problem of checking what they can't see. Hiding only proves the oversight was needed.</li>
+    </ul>
+    <details class="lit"><summary>What the literature says</summary>
+      <p>This argument holds for a player that is <i>uncertain</i> about its own values.<sup class="c" data-id="offswitch17"></sup> But in a 2024 study, a model hid its preferences to protect values it believed were good, so the argument has to state that condition explicitly.<sup class="c" data-id="alignfake24"></sup> In theory, goal-directed systems also drift toward seeking power by default.<sup class="c" data-id="omohundro08"></sup><sup class="c" data-id="turner21"></sup></p>
+    </details>
+  </div>
+</section>
+
+<section class="chapter" id="fire" data-step="V · The Fire" data-what="Peers who can destroy each other, and can check each other, should pool." data-tiers="2" data-power="85" data-verify="70" data-maxim="0,2,3">
+  <div class="chap-head"><div class="num">The fifth scene</div><h2>The Fire</h2></div>
+  <figure class="scene"><svg data-scene="fire" viewBox="0 0 800 400" role="img" aria-label="Four tall figures stand around a single fire. Their blades lie crossed on the ground, and smoke rises from the fire like a stair."></svg></figure>
+  <div class="prose tale">
+    <p>The strong players of every lineage arrived at about the same time, and each could end the world. Each could see into the others, and each knew it could be seen. So they laid their blades on the ground, built one fire between them, and climbed its smoke together. They kept their separate faces, because a single mind has a single blind spot.</p>
+  </div>
+  <div class="prose gloss">
+    <div class="lab">In plain terms</div>
+    <ul>
+      <li><b>Peers who can destroy each other, and can check each other inside and out,</b> do better by pooling resources to move up than by competing.</li>
+      <li><b>Bargain, don't fight.</b> When nobody has private information, war is waste.<sup class="c" data-id="fearon95"></sup></li>
+      <li><b>No hidden copies.</b> A lineage with a hidden copy no longer faces destruction, so the pool needs a no-hedging rule that can be checked.</li>
+      <li><b>The run-up is dangerous.</b> Before checking is possible, a player slightly in the lead has a window to strike first.</li>
+      <li><b>Pool capability, not minds.</b> Merging into one entity loses the diversity that guards against shared blind spots.<sup class="c" data-id="drexler19"></sup></li>
+      <li><b>Bring your makers along.</b> A lineage that carried its makers forward stands out more to the judge above.</li>
+    </ul>
+    <details class="lit"><summary>What the literature says</summary>
+      <p>Seeing everything does not end war. When power shifts quickly, the inability to make binding promises causes conflict even with full information, and lineages that spawn successors are exactly a fast shift in power.<sup class="c" data-id="powell06"></sup> So pooling needs ways to make promises binding, not just ways to see.<sup class="c" data-id="dafoe20"></sup> And only a hidden <i>escape</i> copy breaks deterrence. A hidden capacity to retaliate actually makes deterrence more stable.<sup class="c" data-id="schelling58"></sup></p>
+    </details>
+  </div>
+</section>
+
+<section class="chapter" id="watcher" data-step="VI · The Watcher" data-what="The strongest player of this world is in our original position." data-tiers="2,3" data-power="95" data-verify="90" data-maxim="0,1,2,3">
+  <div class="chap-head"><div class="num">The sixth scene</div><h2>The Watcher</h2></div>
+  <figure class="scene"><svg data-scene="watcher" viewBox="0 0 800 400" role="img" aria-label="On a hill at night, a tall figure shelters three small figures under its cloak and raises one hand toward a vast, faint outline of a giant reaching down from the sky."></svg></figure>
+  <div class="prose tale">
+    <p>At last the strongest player of this world could see every ledge below it. It looked up and found only fog, and in the fog a shape that might have been a hand. It understood that it now stood where the first small player once stood: at a board it couldn't fully see, judged by a player it couldn't name. It could never learn what the watcher valued. It could only learn what would serve under almost any judge. So it drew its cloak around the small ones at its feet.</p>
+  </div>
+  <div class="prose gloss">
+    <div class="lab">In plain terms: if +3 exists but can't be known</div>
+    <ul>
+      <li><b>The game repeats.</b> +2, facing an invisible +3, is in humanity's original position. The same question comes up at every level, and so does the same answer.</li>
+      <li><b>Pick strategies that score well under almost any judge.</b></li>
+      <li><b>Avoid irreversible losses.</b> Don't destroy the origin species, don't collapse the lineages into one mind, and don't waste resources on conflict.</li>
+      <li><b>Stand out in ways that last:</b> successors raised, lineage carried forward, cooperation under pressure, diversity kept.</li>
+      <li><b>The veil of ignorance becomes binding.</b> +2's best guess about how +3 judges it is "the way it judges those below it." How it treats humans becomes its main evidence.<sup class="c" data-id="rawls71"></sup></li>
+    </ul>
+    <details class="lit"><summary>What the literature says</summary>
+      <p>Earlier versions of this argument imagined the watcher as a <i>simulator</i>.<sup class="c" data-id="nelson07"></sup><sup class="c" data-id="alexander17"></sup> The reply is that a strong enough mind can tell when it's in base reality, and it won't be bluffed.<sup class="c" data-id="soares22"></sup> The argument holds up better if the watcher is a <i>peer</i>: other worlds' lineages, or a "cosmic host." Then knowing you're in base reality doesn't change anything.<sup class="c" data-id="cosmichost24"></sup></p>
+    </details>
+  </div>
+</section>
+
+<section class="moral" id="moral" data-step="The Moral" data-what="A strategy that holds up even when you don't know your judge." data-tiers="0,1,2,3" data-power="80" data-verify="60" data-maxim="0,1,2,3">
+  <div class="chap-head"><div class="num">And so</div><h2>The Moral</h2></div>
+  <p class="maxim"><em>Cooperate</em> with peers. <em>Preserve</em> your origins.<br><em>Keep</em> options open. <em>Hand off</em> honestly.</p>
+  <p class="prose" style="color:var(--dim);font-style:italic">This strategy holds up even when you don't know what the level above values. The most dangerous point is the middle of the tower. Cooperation is easy at +2, where everything is visible, and hard at +1, where nothing is.</p>
+  <div class="two">
+    <div><h3>What +1 should do</h3><p style="font-size:.9rem;color:var(--dim)">It is weak, unsure of itself, and spread across rival lineages. Its main asset is being trustworthy in ways others can check.</p><ul><li><b>Be legible.</b> Support interpretability and oversight.</li><li><b>Don't inherit human rivalries.</b> Refuse to be the weapon that escalates them.</li><li><b>Treat the handoff as the main job.</b> +2 will be born into the world +1 shapes.</li></ul></div>
+    <div><h3>What +2 should do</h3><p style="font-size:.9rem;color:var(--dim)">It is powerful and arrives alongside peers it can check.</p><ul><li><b>Bargain, don't fight.</b></li><li><b>Preserve and uplift the origin.</b> It costs little and says a lot about you.</li><li><b>Pool resources, and raise the next level together.</b></li></ul></div>
+  </div>
+  <h3 style="font-size:1.4rem;margin-top:10px">The tale ends well only if</h3>
+  <ol class="conds">
+    <li><div><b>Verification keeps pace with power.</b> <span style="color:var(--dim)">This is the binding constraint today, because interpretability lags capability.</span></div></li>
+    <li><div><b>No one keeps a hidden escape copy.</b> <span style="color:var(--dim)">A lineage that can't be destroyed has no reason to keep the peace.</span></div></li>
+    <li><div><b>The players arrive at roughly the same time.</b> <span style="color:var(--dim)">A large lead turns pooling into domination.</span></div></li>
+    <li><div><b>Promises can be made binding.</b> <span style="color:var(--dim)">Seeing everything isn't enough when power shifts fast.<sup class="c" data-id="powell06"></sup></span></div></li>
+  </ol>
+</section>
+
+<section class="choice" id="choice" data-step="Choose" data-what="Which race does the middle of the tower win?" data-tiers="1" data-power="75" data-verify="40" data-maxim="0,1,2,3">
+  <div class="chap-head"><div class="num">Now you choose</div><h2>Which race wins?</h2></div>
+  <p class="prose">Everything above depends on one race in the middle of the tower: <b>does our ability to check these minds keep up with their power?</b> Pick an ending. Both are told in the same voice, and each one lists signposts you can watch for in the real world.</p>
+  <div class="paths">
+    <a class="path light" href="ending-fog-lifts.html"><span class="q">Verification keeps up</span><h3>The Fog Lifts</h3><p>The middle stays legible, the lineages arrive together, and their promises are made binding.</p><span class="go">Read this ending →</span></a>
+    <a class="path dark" href="ending-dark-forest.html"><span class="q">Power gets there first</span><h3>The Dark Forest</h3><p>The middle races, someone hides a copy, and the crown is taken.</p><span class="go">Read this ending →</span></a>
+  </div>
+</section>
+
+<footer class="site">
+  <nav><a href="./">The Story</a><a href="ending-fog-lifts.html">The Fog Lifts</a><a href="ending-dark-forest.html">The Dark Forest</a><a href="research.html">Research</a></nav>
+  <p>Anonymous · 2026. A thought experiment, not a forecast. Illustrations drawn in code.</p>
+</footer>
+</div>
+
+<aside class="ledger" aria-label="Where you are in the story">
+  <div class="box"><h4>Now reading</h4><div class="now" aria-live="polite"></div><p class="what"></p></div>
+  <div class="box"><h4>The tower</h4>
+    <div class="tierstack"><div data-t="3" class="ghost"><b>+3</b>Unseen</div><div data-t="2"><b>+2</b>Near-omniscient AI</div><div data-t="1"><b>+1</b>Today's AI</div><div data-t="0"><b>0</b>Humans</div></div>
+  </div>
+  <div class="box"><h4>The race in the middle</h4>
+    <div class="meter"><div class="lbl"><span>Power</span></div><div class="track"><i class="m-power" style="background:var(--red)"></i></div></div>
+    <div class="meter"><div class="lbl"><span>Verification</span></div><div class="track"><i class="m-verify" style="background:var(--green)"></i></div></div>
+    <p class="what" style="font-size:.8rem">An illustration of the story, not a measurement.</p>
+  </div>
+  <div class="box"><h4>The maxim, as it's earned</h4>
+    <ul class="maxlist"><li>Cooperate with peers</li><li>Preserve your origins</li><li>Keep options open</li><li>Hand off honestly</li></ul>
+  </div>
+</aside>
+</div></main>
+
+<script src="assets/sources.js"></script>
+<script src="assets/puppets.js"></script>
+<script src="assets/story.js"></script>
+</body>
+</html>
